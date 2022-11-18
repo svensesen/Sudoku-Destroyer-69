@@ -21,28 +21,27 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         open_squares = game_state.board.get_open_squares()
         for depth in range(1,9999):
             score, move = minimax(board = game_state.board, max_depth = depth, open_squares = open_squares)
-            
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
             self.propose_move(Move(move[0], move[1], number_to_use))
-            print("depth: " + str(depth))
-            print("score: " + str(score))
-            print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
-            print(" ")
+            #print("depth: " + str(depth))
+            #print("score: " + str(score))
+            #print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+            #print(" ")
 
 def minimax(board: SudokuBoard, max_depth: int, open_squares: list, is_maximizing_player: bool = True, current_score: int = 0): 
-    if max_depth == 0 or board.is_finished():
+    if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
 
     #switch values around depending on if the player is maximizing or not
     value, function, multiplier = (float('-inf'), greater, 1) if is_maximizing_player else (float('inf'), smaller, -1)
-    best_move = (-1,-1)
+    best_move = open_squares[0]
 
     for move in open_squares: 
         #creates copy of open squares without the move
         new_open_squares = open_squares[:]
         new_open_squares.remove(move)
 
-        new_board = board
+        new_board = copy.deepcopy(board)
         new_board.put(move[0], move[1], 1)
 
         new_score = current_score + multiplier*board.points_square(move[0], move[1])
@@ -50,9 +49,8 @@ def minimax(board: SudokuBoard, max_depth: int, open_squares: list, is_maximizin
         returned_score, done_move = minimax(new_board, max_depth-1, new_open_squares, not is_maximizing_player, new_score)
         if function(returned_score, current_score):
             current_score = returned_score
-            best_move = done_move
+            best_move = move
     
-    print("best_move: " + str(best_move))
     return current_score, best_move
 
 #return if i is greater than j
@@ -65,14 +63,14 @@ def smaller(i, j):
 
 #Gets a correct number for square i,j
 def get_number_to_use(board, i, j):
-    #TODO actualy make this without using solve_sudoku
-    for number in range(1,9):
+    #TODO actually make this without using solve_sudoku
+    for number in range(1,board.N+1):
         new_board = board
         new_board.put(i, j, number)
-        if solve_sudoku("bin\\solve_sudoku.exe", str(board)) == "The sudoku has a solution.":
+        if solve_sudoku("bin\\solve_sudoku.exe", str(new_board)) == "The sudoku has a solution.":
             return number
     
-    return 9
+    return -1
 
 #checks if the board is completely full
 def is_board_finished(self):
@@ -150,10 +148,8 @@ SudokuBoard.get_open_squares = get_open_squares
 SudokuBoard.__eq__ = eq
 SudokuBoard.__hash__ = hash
 
-#print(solve_sudoku("bin\\solve_sudoku.exe", str(load_sudoku("boards\\easy-2x2.txt"))) == "The sudoku has a solution.")
+#ai = SudokuAI()
+#board = load_sudoku("boards\\easy-2x2.txt")
+#game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
 
-ai = SudokuAI()
-initial_board = load_sudoku("boards\\easy-2x2.txt")
-game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
-
-ai.compute_best_move(game_state)
+#ai.compute_best_move(game_state)
