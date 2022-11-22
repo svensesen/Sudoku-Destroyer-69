@@ -24,7 +24,7 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
             print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
             print(" ")
     
-    def compute_best_move2(self, game_state: GameState) -> None:
+    def compute_best_move_leaves(self, game_state: GameState) -> None:
         open_squares = game_state.board.get_open_squares()
         leaves = [0]
         for depth in range(1,9999):
