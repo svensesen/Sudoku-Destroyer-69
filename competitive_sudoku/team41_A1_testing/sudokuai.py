@@ -31,8 +31,8 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         open_squares = game_state.board.get_open_squares()
         empty = game_state.board.get_empty()
         for depth in range(1,max_depth):
-            score, move = minimaxFast( max_depth = depth, open_squares = open_squares, empty = empty, 
-            m = game_state.board.m,n = game_state.board.n)
+            score, move = minimaxFast(max_depth = depth, open_squares = open_squares, empty = empty, 
+            m = game_state.board.m, n = game_state.board.n)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
 
             self.propose_move(Move(move[0], move[1], number_to_use))
@@ -45,17 +45,24 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
     def compute_best_move_leaves(self, game_state: GameState, max_depth = 9999) -> None:
         start = time.time()
         open_squares = game_state.board.get_open_squares()
+        empty = game_state.board.get_empty()
         leaves = [0]
         for depth in range(1,max_depth):
-            score, move, leaves = minimaxLeaves(board = game_state.board, max_depth = depth, open_squares = open_squares, leaves = leaves)
-            number_to_use = get_number_to_use(game_state.board, move[0], move[1])
-            self.propose_move(Move(move[0], move[1], number_to_use))
-            print("depth: " + str(depth))
-            print("score: " + str(score))
-            print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
-            print("time: " + str(time.time()-start))
-            print(" ")
+            score, move = minimaxLeaves(max_depth = depth, open_squares = open_squares, empty = empty, 
+            m = game_state.board.m, n = game_state.board.n, leaves = leaves)
 
+            if move != (-1,-1):
+                number_to_use = get_number_to_use(game_state.board, move[0], move[1])
+                self.propose_move(Move(move[0], move[1], number_to_use))
+                print("depth: " + str(depth))
+                print("score: " + str(score))
+                print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+                print("time: " + str(time.time()-start))
+                print(" ")
+
+#
+#The original minimax, is slower than minimaxFast, but for now kept in for the sake of potentially explaining the new algorithm
+#
 def minimax(board: SudokuBoard, max_depth: int, open_squares: list, is_maximizing_player: bool = True, current_score: int = 0): 
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
@@ -71,13 +78,12 @@ def minimax(board: SudokuBoard, max_depth: int, open_squares: list, is_maximizin
         new_open_squares.remove(move)
 
         #creates copy of board with the move
-        new_board = copy.deepcopy(board) #TODO remove this copying
+        new_board = copy.deepcopy(board) 
         new_board.put(move[0], move[1], 1)
 
-        new_score = current_score + multiplier*board.points_square(move[0], move[1]) #TODO keep track of the possibilities instead
+        new_score = current_score + multiplier*board.points_square(move[0], move[1]) 
     
         returned_score, done_move = minimax(new_board, max_depth-1, new_open_squares, not is_maximizing_player, new_score)
-        #print(f"depth: {max_depth}, move: {move}, current_score: {current_score}, new_score: {new_score}, returned_score: {returned_score}")
         
         if function(returned_score, best_score):
             best_score = returned_score
@@ -85,8 +91,12 @@ def minimax(board: SudokuBoard, max_depth: int, open_squares: list, is_maximizin
     
     return best_score, best_move
 
+#
+#The current best version of minimax we have
+#
 def minimaxFast(max_depth: int, open_squares: list, empty: dict, m:int, n:int, 
 is_maximizing_player: bool = True, current_score: int = 0): 
+    #if we have hit either the maximum depth or if there are no more moves left we stop iteration
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
 
@@ -95,19 +105,68 @@ is_maximizing_player: bool = True, current_score: int = 0):
     best_score = value
     best_move = open_squares[0]
 
+    for move in open_squares[:]: 
+        
+        #calculates how the move would change the score
+        amount_finished = (empty["row"][move[0]] == 1) + (empty["column"][move[1]] == 1) + (empty["region"][int(move[0] / m)*m + int(move[1] / n)] == 1)
+        new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
+
+        #removes the move from open_squares and updates empty
+        open_squares.remove(move)
+        empty["row"][move[0]] -= 1
+        empty["column"][move[1]] -= 1
+        empty["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
+    
+        #goes one layer of minimax deeper
+        returned_score, done_move = minimaxFast(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score)
+       
+        #changes open_squares and empty back to the original state
+        open_squares.append(move)
+        empty["row"][move[0]] += 1
+        empty["column"][move[1]] += 1
+        empty["region"][int(move[0] / m)*m + int(move[1] / n)] += 1
+
+        #if the score of this move going deeper is better, this becomes the best move with the best score
+        if function(returned_score, best_score):
+            best_score = returned_score
+            best_move = move
+    
+    return best_score, best_move
+
+#
+#The minimax below this implements the leave functionality, it is however slower than without, for now i kept it in for the sake of potential future testing
+#
+def minimaxLeaves(max_depth: int, open_squares: list, empty: dict, m:int, n:int, leaves: list,
+is_maximizing_player: bool = True, current_score: int = 0, move:set = (-1,-1)): 
+    #switch values around depending on if the player is maximizing or not
+    value, function, multiplier = (float('-inf'), greater, -1) if is_maximizing_player else (float('inf'), smaller, 1)
+
+    if max_depth == 0:
+        amount_finished = (empty["row"][move[0]] == 0) + (empty["column"][move[1]] == 0) + (empty["region"][int(move[0] / m)*m + int(move[1] / n)] == 0)
+        current_score = current_score +  multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
+        leaves.append(current_score)
+        return current_score, move
+    
+    elif not open_squares:
+        return current_score, (-1,-1)
+        
+    best_score = value
+    best_move = (-1,-1)
+
+    if max_depth == 1:
+        current_score = leaves.pop(0)
+
     for move in open_squares: 
         #creates copy of open squares without the move
         new_open_squares = open_squares[:]
         new_open_squares.remove(move)
 
-        amount_finished = (empty["row"][move[0]] == 1) + (empty["column"][move[1]] == 1) + (empty["region"][int(move[0] / m)*m + int(move[1] / n)] == 1)
-        new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
-
         empty["row"][move[0]] -= 1
         empty["column"][move[1]] -= 1
         empty["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
     
-        returned_score, done_move = minimaxFast(max_depth-1, new_open_squares, empty, m, n, not is_maximizing_player, new_score)
+        returned_score, done_move = minimaxLeaves(max_depth-1, new_open_squares, empty, m, n, leaves,
+        not is_maximizing_player, current_score, move)
        
         empty["row"][move[0]] += 1
         empty["column"][move[1]] += 1
@@ -115,43 +174,9 @@ is_maximizing_player: bool = True, current_score: int = 0):
 
         if function(returned_score, best_score):
             best_score = returned_score
-            best_move = move
-    
-    return best_score, best_move
-
-def minimaxLeaves(board: SudokuBoard, max_depth: int, open_squares: list, leaves: list,
-is_maximizing_player: bool = True, current_score: int = 0, move:set = (-1,-1)): 
-    #switch values around depending on if the player is maximizing or not
-    value, function, multiplier = (float('-inf'), greater, 1) if is_maximizing_player else (float('inf'), smaller, -1)
-
-    if max_depth == 0 or not open_squares:
-        current_score = current_score + multiplier*board.points_square(move[0], move[1])
-        leaves.append(current_score)
-        return current_score, move, leaves
-
-    best_score = value
-    best_move = open_squares[0]
-
-    for move in open_squares: 
-        #creates copy of open squares without the move
-        new_open_squares = open_squares[:]
-        new_open_squares.remove(move)
-
-        #creates copy of board with the move
-        new_board = copy.deepcopy(board)
-        new_board.put(move[0], move[1], 1)
-
-        if max_depth == 1:
-            current_score = leaves.pop(0)
-
-        returned_score, done_move, leaves = minimaxLeaves(new_board, max_depth-1, new_open_squares, leaves, 
-        not is_maximizing_player, current_score, move)
-
-        if function(returned_score, best_score):
-            best_score = returned_score
             best_move = done_move
     
-    return best_score, best_move, leaves
+    return best_score, best_move
 
 #return if i is greater than j
 def greater(i, j):
@@ -267,9 +292,10 @@ SudokuBoard.get_empty = get_empty
 SudokuBoard.__eq__ = eq
 SudokuBoard.__hash__ = hash
 
-ai = SudokuAI()
-initial_board = load_sudoku("boards\\random-2x3.txt")
-game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
+#ai = SudokuAI()
+#initial_board = load_sudoku("boards\\random-2x3.txt")
+#game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
 
 #ai.compute_best_move(game_state, 6)
-ai.compute_best_move_fast(game_state, 6)
+#ai.compute_best_move_fast(game_state, 6)
+#ai.compute_best_move_leaves(game_state, 6)
