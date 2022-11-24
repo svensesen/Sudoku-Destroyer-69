@@ -299,10 +299,10 @@ SudokuBoard.get_empty = get_empty
 SudokuBoard.__eq__ = eq
 SudokuBoard.__hash__ = hash
 
-ai = SudokuAI()
-initial_board = load_sudoku("boards\\random-2x3.txt")
-game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
+#ai = SudokuAI()
+#initial_board = load_sudoku("boards\\random-2x3.txt")
+#game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
 
 #ai.compute_best_move(game_state, 6)
-ai.compute_best_move_fast(game_state, 6)
+#ai.compute_best_move_fast(game_state, 6)
 #ai.compute_best_move_leaves(game_state, 6)
