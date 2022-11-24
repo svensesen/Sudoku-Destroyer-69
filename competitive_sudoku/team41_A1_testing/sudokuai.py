@@ -5,6 +5,9 @@ from competitive_sudoku.sudoku import GameState, Move, SudokuBoard, TabooMove, l
 import competitive_sudoku.sudokuai
 from competitive_sudoku.execute import solve_sudoku #TODO this should be removed later
 
+class Reference(object):
+    def __init__(self, value): self.value = value
+
 class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
     """
     Sudoku AI that computes a move for a given sudoku configuration.
@@ -95,13 +98,13 @@ def minimax(board: SudokuBoard, max_depth: int, open_squares: list, is_maximizin
 #The current best version of minimax we have
 #
 def minimaxFast(max_depth: int, open_squares: list, empty: dict, m:int, n:int, 
-is_maximizing_player: bool = True, current_score: int = 0): 
+is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(float('-inf')), beta: list = Reference(float("inf"))): 
     #if we have hit either the maximum depth or if there are no more moves left we stop iteration
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
 
     #switch values around depending on if the player is maximizing or not
-    value, function, multiplier = (float('-inf'), greater, 1) if is_maximizing_player else (float('inf'), smaller, -1)
+    value, function, multiplier, AB, min_max = (float('-inf'), greater, 1, alpha, max) if is_maximizing_player else (float('inf'), smaller, -1, beta, min)
     best_score = value
     best_move = open_squares[0]
 
@@ -118,7 +121,7 @@ is_maximizing_player: bool = True, current_score: int = 0):
         empty["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
     
         #goes one layer of minimax deeper
-        returned_score, done_move = minimaxFast(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score)
+        returned_score, done_move = minimaxFast(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score, alpha, beta)
        
         #changes open_squares and empty back to the original state
         open_squares.append(move)
@@ -130,6 +133,10 @@ is_maximizing_player: bool = True, current_score: int = 0):
         if function(returned_score, best_score):
             best_score = returned_score
             best_move = move
+
+            AB.value = min_max(AB.value, best_score)
+            if alpha.value >= beta.value:
+                break
     
     return best_score, best_move
 
@@ -292,10 +299,10 @@ SudokuBoard.get_empty = get_empty
 SudokuBoard.__eq__ = eq
 SudokuBoard.__hash__ = hash
 
-#ai = SudokuAI()
-#initial_board = load_sudoku("boards\\random-2x3.txt")
-#game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
+ai = SudokuAI()
+initial_board = load_sudoku("boards\\random-2x3.txt")
+game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
 
 #ai.compute_best_move(game_state, 6)
-#ai.compute_best_move_fast(game_state, 6)
+ai.compute_best_move_fast(game_state, 6)
 #ai.compute_best_move_leaves(game_state, 6)
