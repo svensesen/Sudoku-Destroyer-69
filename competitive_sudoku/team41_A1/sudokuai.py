@@ -14,8 +14,11 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         open_squares = game_state.board.get_open_squares()
         empty_squares = game_state.board.get_empty_squares()
         for depth in range(1,9999):
+            #alpha and beta are defined outside of the initialization, otherwise it breaks
+            alpha = Reference(float('-inf'))
+            beta = Reference(float("inf"))
             score, move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, 
-            m = game_state.board.m, n = game_state.board.n)
+            m = game_state.board.m, n = game_state.board.n, alpha = alpha, beta = beta)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
             self.propose_move(Move(move[0], move[1], number_to_use))
         
@@ -29,8 +32,8 @@ def greater(i: int, j: int) -> int:
 def smaller(i: int, j: int) -> int:
     return i < j
 
-def minimax(max_depth: int, open_squares: list, empty_squares: dict, m:int, n:int, 
-is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(float('-inf')), beta: list = Reference(float("inf"))): 
+def minimax(max_depth: int, open_squares: list, empty_squares: dict, m:int, n:int, alpha, beta,
+is_maximizing_player: bool = True, current_score: int = 0): 
     """
     A version of the minimax algorithm.
     Every time we create a child we calculate how many points the move associated with that child might get us.
@@ -73,7 +76,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(flo
         empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
     
         # Goes one layer of minimax deeper
-        returned_score = minimax(max_depth-1, open_squares, empty_squares, m, n, not is_maximizing_player, new_score, alpha, beta)[0]
+        returned_score = minimax(max_depth-1, open_squares, empty_squares, m, n, alpha, beta, not is_maximizing_player, new_score)[0]
        
         # Changes open_squares and empty_squares back to the original state
         open_squares.append(move)

@@ -11,8 +11,8 @@ class Reference(object):
 #
 #The current best version of minimax we have
 #
-def minimax(max_depth: int, open_squares: list, empty: dict, m:int, n:int, 
-is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(float('-inf')), beta: list = Reference(float("inf"))): 
+def minimax(max_depth: int, open_squares: list, empty: dict, m:int, n:int, alpha, beta,
+is_maximizing_player: bool = True, current_score: int = 0): 
     #if we have hit either the maximum depth or if there are no more moves left we stop iteration
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
@@ -35,8 +35,8 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(flo
         empty["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
     
         #goes one layer of minimax deeper
-        returned_score, done_move = minimax(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score, alpha, beta)
-       
+        returned_score, done_move = minimax(max_depth-1, open_squares, empty, m, n, alpha, beta, not is_maximizing_player, new_score)
+
         #changes open_squares and empty back to the original state
         open_squares.append(move)
         empty["row"][move[0]] += 1
@@ -209,17 +209,24 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         open_squares = game_state.board.get_open_squares()
         empty = game_state.board.get_empty()
         for depth in range(1,max_depth):
+            alpha = Reference(float('-inf'))
+            beta = Reference(float("inf"))
             score, move = minimax_type(max_depth = depth, open_squares = open_squares, empty = empty, 
-            m = game_state.board.m, n = game_state.board.n)
+            m = game_state.board.m, n = game_state.board.n, alpha = alpha, beta = beta)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
-
             self.propose_move(Move(move[0], move[1], number_to_use))
+            print("depth: " + str(depth))
+            print("score: " + str(score))
+            print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+            print("time: " + str(time.time()-start))
+            print(" ")
     
     def compute_best_move2(self, game_state: GameState, max_depth = 9999) -> None:
         start = time.time()
         open_squares = game_state.board.get_open_squares()
         empty = game_state.board.get_empty2()
         for depth in range(1,max_depth):
+            
             score, move = minimax2(max_depth = depth, open_squares = open_squares, empty = empty, 
             m = game_state.board.m, n = game_state.board.n)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
@@ -229,17 +236,7 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
 ai = SudokuAI()
 initial_board = load_sudoku("boards\\random-2x3.txt")
 game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
-
-from statistics import mean
-
-#time to beat, around 0.48
-times = []
-for i in range(100):
-    start = time.time()
-    ai = SudokuAI()
-    ai.compute_best_move2(game_state, 6)
-    times.append(time.time() - start)
-print(mean(times))
+ai.compute_best_move(game_state, 5)
 
 #things to test
 # -splitting up the is_maximizing_player parts - is actually slower (somehow) by roughly 0.05
