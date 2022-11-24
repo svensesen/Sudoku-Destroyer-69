@@ -246,5 +246,8 @@ print(mean(times))
 # -do not assign value to 'done_move' - maybe faster, alternatively doesn't matter
 # -create dictionary for the regions, instead of calculating - maybe faster, but if so not by much
 # -copy open squares - clearly slower than the current method
-# -copy empty with deepcopy - a bit slower than the current overwrite method
-# -copy empty with .copy (requiring empty rework)
+# -copy empty with deepcopy - a bit slower than the current overwrite methods
+# -copy empty with .copy (requiring empty rework) - a bit slower
+# -empty as a list instead of dictionary, no copying - definitely slower
+# -does crashes matter (remove empty moves check) - please don't crash
+# -allow skipping moves
