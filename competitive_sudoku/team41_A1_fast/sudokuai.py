@@ -33,7 +33,7 @@ is_maximizing_player: bool = True, current_score: int = 0):
         empty["row"][move[0]] -= 1
         empty["column"][move[1]] -= 1
         empty["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
-    
+
         #goes one layer of minimax deeper
         returned_score, done_move = minimax(max_depth-1, open_squares, empty, m, n, alpha, beta, not is_maximizing_player, new_score)
 
@@ -48,8 +48,9 @@ is_maximizing_player: bool = True, current_score: int = 0):
             best_score = returned_score
             best_move = move
 
-            AB.value = min_max(AB.value, best_score)
-            if alpha.value >= beta.value:
+            if is_maximizing_player: alpha = max(alpha, best_score)
+            else: beta = min(beta, best_score)
+            if alpha >= beta:
                 break
     
     return best_score, best_move
@@ -209,8 +210,8 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         open_squares = game_state.board.get_open_squares()
         empty = game_state.board.get_empty()
         for depth in range(1,max_depth):
-            alpha = Reference(float('-inf'))
-            beta = Reference(float("inf"))
+            alpha = float('-inf')
+            beta = float("inf")
             score, move = minimax_type(max_depth = depth, open_squares = open_squares, empty = empty, 
             m = game_state.board.m, n = game_state.board.n, alpha = alpha, beta = beta)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
@@ -236,8 +237,18 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
 ai = SudokuAI()
 initial_board = load_sudoku("boards\\random-2x3.txt")
 game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
-ai.compute_best_move(game_state, 5)
+ai.compute_best_move(game_state, 6)
 
+
+# new_board = copy.deepcopy(initial_board)
+# new_board.put(1,4,6)
+# new_state = GameState(initial_board, copy.deepcopy(new_board), [], [], [0, 0])
+# ai.compute_best_move(new_state, 3)
+
+# newer_board = copy.deepcopy(new_board)
+# newer_board.put(3,5,5)
+# newer_state = GameState(initial_board, copy.deepcopy(newer_board), [], [], [0, 0])
+# ai.compute_best_move(newer_state, 2)
 #things to test
 # -splitting up the is_maximizing_player parts - is actually slower (somehow) by roughly 0.05
 # -do not assign value to 'done_move' - maybe faster, alternatively doesn't matter

@@ -1,26 +1,39 @@
-import copy
+from copy import deepcopy
 from competitive_sudoku.sudoku import GameState, Move, SudokuBoard
-import competitive_sudoku.sudokuai
 from competitive_sudoku.execute import solve_sudoku #TODO this should be removed later
 
-class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
+class SudokuAI(object):
     """
     Sudoku AI that computes a move for a given sudoku configuration.
     """
     def __init__(self):
-        super().__init__()
+        self.best_move = [0, 0, 0]
+        self.lock = None
     
     def compute_best_move(self, game_state: GameState) -> None:
         open_squares = game_state.board.get_open_squares()
         empty_squares = game_state.board.get_empty_squares()
         for depth in range(1,9999):
-            #alpha and beta are defined outside of the initialization, otherwise it breaks
-            alpha = Reference(float('-inf'))
-            beta = Reference(float("inf"))
             score, move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, 
-            m = game_state.board.m, n = game_state.board.n, alpha = alpha, beta = beta)
+            m = game_state.board.m, n = game_state.board.n)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
             self.propose_move(Move(move[0], move[1], number_to_use))
+    
+    def propose_move(self, move: Move) -> None:
+        """
+        Updates the best move that has been found so far.
+        N.B. DO NOT CHANGE THIS FUNCTION!
+        This function is implemented here to save time with importing
+        @param move: A move.
+        """
+        i, j, value = move.i, move.j, move.value
+        if self.lock:
+            self.lock.acquire()
+        self.best_move[0] = i
+        self.best_move[1] = j
+        self.best_move[2] = value
+        if self.lock:
+            self.lock.release()
         
 #The below class and functions so that we can create certain references in the minimax function
 class Reference(object):
@@ -32,8 +45,8 @@ def greater(i: int, j: int) -> int:
 def smaller(i: int, j: int) -> int:
     return i < j
 
-def minimax(max_depth: int, open_squares: list, empty_squares: dict, m:int, n:int, alpha, beta,
-is_maximizing_player: bool = True, current_score: int = 0): 
+def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
+is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")): 
     """
     A version of the minimax algorithm.
     Every time we create a child we calculate how many points the move associated with that child might get us.
@@ -44,7 +57,7 @@ is_maximizing_player: bool = True, current_score: int = 0):
     @param open_squares: TODO
     @param empty_squares: TODO
     @param m: The amount of rows per region for this board, used to calculate regions from coordinates.
-    @param n: The amount of rows per region for this board, used to calculate regions from coordinates.
+    @param n: The amount of columns per region for this board, used to calculate regions from coordinates.
     @param is_maximizing_player: Wether the current player is attempting to maximize or minimize the score.
     @param current_score: TODO
     @alpha: The alpha for alpha-beta pruning.
@@ -57,14 +70,14 @@ is_maximizing_player: bool = True, current_score: int = 0):
         return current_score, (-1,-1)
 
     # Switches values around depending on if the player is maximizing or not
-    value, function, multiplier, AB, min_max = (float('-inf'), greater, 1, alpha, max) if is_maximizing_player else (float('inf'), smaller, -1, beta, min)
+    value, function, multiplier = (float('-inf'), greater, 1) if is_maximizing_player else (float('inf'), smaller, -1)
     
     # Initializes where we store the best move and its associated score of this node
     best_score = value
     best_move = open_squares[0]
 
     for move in open_squares[:]: 
-        
+
         # Calculates how the move would change the score
         amount_finished = (empty_squares["row"][move[0]] == 1) + (empty_squares["column"][move[1]] == 1) + (empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] == 1)
         new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
@@ -76,7 +89,7 @@ is_maximizing_player: bool = True, current_score: int = 0):
         empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
     
         # Goes one layer of minimax deeper
-        returned_score = minimax(max_depth-1, open_squares, empty_squares, m, n, alpha, beta, not is_maximizing_player, new_score)[0]
+        returned_score = minimax(max_depth-1, open_squares, empty_squares, m, n, not is_maximizing_player, new_score, alpha, beta)[0]
        
         # Changes open_squares and empty_squares back to the original state
         open_squares.append(move)
@@ -90,8 +103,10 @@ is_maximizing_player: bool = True, current_score: int = 0):
             best_move = move
 
             # Does the alpha-beta pruning
-            AB.value = min_max(AB.value, best_score)
-            if alpha.value >= beta.value:
+            if is_maximizing_player: alpha = max(alpha, best_score)
+            else: beta = min(beta, best_score)
+
+            if alpha >= beta:
                 break
     
     return best_score, best_move
@@ -154,7 +169,7 @@ def get_number_to_use(self, i, j) -> int:
     @returns: A valid number for the square"""
     #TODO actually make this without using solve_sudoku
     for number in range(1,self.N+1):
-        new_board = copy.deepcopy(self)
+        new_board = deepcopy(self)
         new_board.put(i, j, number)
         if solve_sudoku("bin\\solve_sudoku.exe", str(new_board)) == "The sudoku has a solution.":
             return number
