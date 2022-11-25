@@ -11,11 +11,19 @@ class SudokuAI(object):
         self.lock = None
     
     def compute_best_move(self, game_state: GameState) -> None:
+        """
+        The AI calculates the best move for the given game state.
+        It continuously updates the best_move value until forced to stop.
+        Firstly it uses minimax to determine the best square, then determines a valid number for that square.
+        @param game_state: The starting game state.
+        """
+        # Calculates the starting variable minimax needs
         open_squares = game_state.board.get_open_squares()
         empty_squares = game_state.board.get_empty_squares()
+
+        # Calculate for every increasing depths
         for depth in range(1,9999):
-            score, move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, 
-            m = game_state.board.m, n = game_state.board.n)
+            move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)[1]
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
             self.propose_move(Move(move[0], move[1], number_to_use))
     
@@ -35,10 +43,7 @@ class SudokuAI(object):
         if self.lock:
             self.lock.release()
         
-#The below class and functions so that we can create certain references in the minimax function
-class Reference(object):
-    def __init__(self, value): self.value = value
-
+#The below functions exist so that we can create certain references in the minimax function
 def greater(i: int, j: int) -> int:
     return i > j
 
@@ -48,21 +53,20 @@ def smaller(i: int, j: int) -> int:
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
 is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")): 
     """
-    A version of the minimax algorithm.
+    A version of the minimax algorithm implementing alpha beta pruning.
     Every time we create a child we calculate how many points the move associated with that child might get us.
-    TODO
-    TODO (implements AB pruning)
-    TODO (default values are those values for the first iteration)
-    @param max_depth: TODO
-    @param open_squares: TODO
-    @param empty_squares: TODO
+    This calculation is done with empty_squares, while all potential moves are kept track of via open_squares
+    Variables with default values take those values during the first iteration
+    @param max_depth: The maximum depth the function is allowed to further search from its current depth
+    @param open_squares: A list containing all still open squares/possible moves
+    @param empty_squares: A dictionary containing the amount of empty square for each group
     @param m: The amount of rows per region for this board, used to calculate regions from coordinates.
     @param n: The amount of columns per region for this board, used to calculate regions from coordinates.
     @param is_maximizing_player: Wether the current player is attempting to maximize or minimize the score.
-    @param current_score: TODO
+    @param current_score: The score at the node we start this iteration of minimax on
     @alpha: The alpha for alpha-beta pruning.
     @beta: The beta for alpha-beta pruning.
-    @return: TODO
+    @return: The score that will be reached from this node a maximum depth and the optimal next move to achieve that
     """
     
     # If we have hit either the maximum depth or if there are no more moves left we stop iteration
@@ -105,7 +109,6 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
             # Does the alpha-beta pruning
             if is_maximizing_player: alpha = max(alpha, best_score)
             else: beta = min(beta, best_score)
-
             if alpha >= beta:
                 break
     
@@ -160,7 +163,6 @@ def get_empty_squares(self) -> dict:
 
     return {"row": empty_row, "column": empty_column, "region": empty_region}
 
-#Gets a correct number for square i,j
 def get_number_to_use(self, i, j) -> int:
     """
     For the current board, get a valid number for the square at (i,j)
