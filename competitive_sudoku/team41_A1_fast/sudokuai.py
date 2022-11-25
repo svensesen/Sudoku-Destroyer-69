@@ -11,59 +11,14 @@ class Reference(object):
 #
 #The current best version of minimax we have
 #
-def minimax(max_depth: int, open_squares: list, empty: dict, m:int, n:int, alpha, beta,
-is_maximizing_player: bool = True, current_score: int = 0): 
+def minimax(max_depth: int, open_squares: list, empty: dict, m:int, n:int, 
+is_maximizing_player: bool = True, current_score: int = 0, alpha = float('-inf'), beta = float("inf")): 
     #if we have hit either the maximum depth or if there are no more moves left we stop iteration
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
 
     #switch values around depending on if the player is maximizing or not
-    value, function, multiplier, AB, min_max = (float('-inf'), greater, 1, alpha, max) if is_maximizing_player else (float('inf'), smaller, -1, beta, min)
-    best_score = value
-    best_move = open_squares[0]
-
-    for move in open_squares[:]: 
-        
-        #calculates how the move would change the score
-        amount_finished = (empty["row"][move[0]] == 1) + (empty["column"][move[1]] == 1) + (empty["region"][int(move[0] / m)*m + int(move[1] / n)] == 1)
-        new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
-
-        #removes the move from open_squares and updates empty
-        open_squares.remove(move)
-        empty["row"][move[0]] -= 1
-        empty["column"][move[1]] -= 1
-        empty["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
-
-        #goes one layer of minimax deeper
-        returned_score, done_move = minimax(max_depth-1, open_squares, empty, m, n, alpha, beta, not is_maximizing_player, new_score)
-
-        #changes open_squares and empty back to the original state
-        open_squares.append(move)
-        empty["row"][move[0]] += 1
-        empty["column"][move[1]] += 1
-        empty["region"][int(move[0] / m)*m + int(move[1] / n)] += 1
-
-        #if the score of this move going deeper is better, this becomes the best move with the best score
-        if function(returned_score, best_score):
-            best_score = returned_score
-            best_move = move
-
-            if is_maximizing_player: alpha = max(alpha, best_score)
-            else: beta = min(beta, best_score)
-            if alpha >= beta:
-                break
-    
-    return best_score, best_move
-
-
-def minimax2(max_depth: int, open_squares: list, empty: dict, m:int, n:int, 
-is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(float('-inf')), beta: list = Reference(float("inf"))): 
-    #if we have hit either the maximum depth or if there are no more moves left we stop iteration
-    if max_depth == 0 or not open_squares:
-        return current_score, (-1,-1)
-
-    #switch values around depending on if the player is maximizing or not
-    value, function, multiplier, AB, min_max = (float('-inf'), greater, 1, alpha, max) if is_maximizing_player else (float('inf'), smaller, -1, beta, min)
+    value, function, multiplier = (float('-inf'), greater, 1) if is_maximizing_player else (float('inf'), smaller, -1)
     best_score = value
     best_move = open_squares[0]
 
@@ -79,7 +34,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(flo
         empty[int(move[0] / m)*m + int(move[1] / n) + n*m*2] -= 1
     
         #goes one layer of minimax deeper
-        returned_score, done_move = minimax2(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score, alpha, beta)
+        returned_score = minimax(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score, alpha, beta)[0]
        
         #changes open_squares and empty back to the original state
         open_squares.append(move)
@@ -92,8 +47,57 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha = Reference(flo
             best_score = returned_score
             best_move = move
 
-            AB.value = min_max(AB.value, best_score)
-            if alpha.value >= beta.value:
+            if is_maximizing_player: alpha = max(alpha, best_score)
+            else: beta = min(beta, best_score)
+
+            if alpha >= beta:
+                break
+    
+    return best_score, best_move
+
+#
+#Second version to be changed for testing
+#
+def minimax2(max_depth: int, open_squares: list, empty: dict, m:int, n:int, 
+is_maximizing_player: bool = True, current_score: int = 0, alpha = float('-inf'), beta = float("inf")): 
+    #if we have hit either the maximum depth or if there are no more moves left we stop iteration
+    if max_depth == 0 or not open_squares:
+        return current_score, (-1,-1)
+
+    #switch values around depending on if the player is maximizing or not
+    value, function, multiplier = (float('-inf'), greater, 1) if is_maximizing_player else (float('inf'), smaller, -1)
+    best_score = value
+    best_move = open_squares[0]
+
+    for move in open_squares[:]: 
+        #calculates how the move would change the score
+        amount_finished = (empty[move[0]] == 1) + (empty[move[1] + n*m] == 1) + (empty[int(move[0] / m)*m + int(move[1] / n) + n*m] == 1)
+        new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
+
+        #removes the move from open_squares and updates empty
+        open_squares.remove(move)
+        empty[move[0]] -= 1
+        empty[move[1] + n*m] -= 1
+        empty[int(move[0] / m)*m + int(move[1] / n) + n*m*2] -= 1
+    
+        #goes one layer of minimax deeper
+        returned_score = minimax2(max_depth-1, open_squares, empty, m, n, not is_maximizing_player, new_score, alpha, beta)[0]
+       
+        #changes open_squares and empty back to the original state
+        open_squares.append(move)
+        empty[move[0]] += 1
+        empty[move[1] + n*m] += 1
+        empty[int(move[0] / m)*m + int(move[1] / n) + n*m*2] += 1
+
+        #if the score of this move going deeper is better, this becomes the best move with the best score
+        if function(returned_score, best_score):
+            best_score = returned_score
+            best_move = move
+
+            if is_maximizing_player: alpha = max(alpha, best_score)
+            else: beta = min(beta, best_score)
+
+            if alpha >= beta:
                 break
     
     return best_score, best_move
@@ -239,7 +243,6 @@ initial_board = load_sudoku("boards\\random-2x3.txt")
 game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])
 ai.compute_best_move(game_state, 6)
 
-
 # new_board = copy.deepcopy(initial_board)
 # new_board.put(1,4,6)
 # new_state = GameState(initial_board, copy.deepcopy(new_board), [], [], [0, 0])
@@ -249,6 +252,8 @@ ai.compute_best_move(game_state, 6)
 # newer_board.put(3,5,5)
 # newer_state = GameState(initial_board, copy.deepcopy(newer_board), [], [], [0, 0])
 # ai.compute_best_move(newer_state, 2)
+
+
 #things to test
 # -splitting up the is_maximizing_player parts - is actually slower (somehow) by roughly 0.05
 # -do not assign value to 'done_move' - maybe faster, alternatively doesn't matter
