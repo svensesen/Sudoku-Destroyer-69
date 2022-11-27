@@ -299,6 +299,53 @@ SudokuBoard.get_empty = get_empty
 SudokuBoard.__eq__ = eq
 SudokuBoard.__hash__ = hash
 
+def get_positions_in_a_block(position : int, board : SudokuBoard):
+    """
+    Printing the output of this function is equivalent to printing the positions of all numbers of the block we are in
+    Useful when needing to check if we complete a block (region)
+    
+    This has been tested to work (math-wise)
+    """
+
+    M, N = board.region_height(), board.region_width() #double check if these are not actually put around
+    
+    k = (position//(N*M))%M
+    l = position%N
+
+    x = position - l - k*N*M
+
+    lista = [] #this list will be keeping the positions (and will be returned)
+    for n in range(N):
+        for m in range(M):
+            value = x + N*M*m + n
+            lista.append(value)
+    return(lista)
+    
+#returns the values of all squares (cells) constituting the row to which the [i, j] square (cell) belongs
+def get_values_in_a_row(self, i:int, j:int, board : SudokuBoard):
+    return([self.get(i, column) for column in range(self.N)])
+
+#returns the values of all squares (cells) constituting the row to which the [i, j] square (cell) belongs
+def get_values_in_a_column(self, i:int, j:int, board : SudokuBoard):
+    return([self.get(i, row) for row in range(self.N)])
+
+#returns the values of all squares (cells) constituting the block to which the [i, j] square (cell) belongs
+def get_values_in_a_block(self, i:int, j:int, board : SudokuBoard):
+    position = board.rc2f(i, j)
+    positions = get_positions_in_a_block(position, board)
+    positions_converted = [board.f2rc(position) for position in positions]
+    return(self.get(x[0], x[1]) for x in positions_converted)
+
+def get_number_to_use2(board, i, j):
+    #TODO actually make this without using solve_sudoku
+    for number in range(1,board.N+1):
+        new_board = copy.deepcopy(board)
+        new_board.put(i, j, number)
+        if solve_sudoku("bin\\solve_sudoku.exe", str(new_board)) == "The sudoku has a solution.":
+            return number
+    
+    return -1
+
 #ai = SudokuAI()
 #initial_board = load_sudoku("boards\\random-2x3.txt")
 #game_state = GameState(initial_board, copy.deepcopy(initial_board), [], [], [0, 0])

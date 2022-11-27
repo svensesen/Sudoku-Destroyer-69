@@ -2,6 +2,7 @@ from copy import deepcopy
 from competitive_sudoku.sudoku import GameState, Move, SudokuBoard
 from competitive_sudoku.execute import solve_sudoku #TODO this should be removed later
 import random
+from time import time
 
 
 class SudokuAI(object):
@@ -12,7 +13,7 @@ class SudokuAI(object):
         self.best_move = [0, 0, 0]
         self.lock = None
     
-    def compute_best_move(self, game_state: GameState) -> None:
+    def compute_best_move(self, game_state: GameState, depth = 9999) -> None:
         """
         The AI calculates the best move for the given game state.
         It continuously updates the best_move value until forced to stop.
@@ -24,12 +25,42 @@ class SudokuAI(object):
         empty_squares = game_state.board.get_empty_squares()
 
         # Calculate for every increasing depths
-        for depth in range(1,9999):
-            move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)[1]
+        for depth in range(1, depth):
+            start = time()
+            score, move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)
             number_to_use = get_number_to_use(game_state.board, move[0], move[1])
             move = Move(move[0], move[1], number_to_use)
-            if not isinstance(move, TabooMove):
-                self.propose_move(move))
+            if move not in game_state.taboo_moves: 
+                self.propose_move(move)         
+                print("depth: " + str(depth))
+                print("score: " + str(score))
+                print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+                print("time: " + str(time()-start))
+                print(" ")
+    
+    def base_compute_best_move(self, game_state: GameState, depth = 9999) -> None:
+        """
+        The AI calculates the best move for the given game state.
+        It continuously updates the best_move value until forced to stop.
+        Firstly it uses minimax to determine the best square, then determines a valid number for that square.
+        @param game_state: The starting game state.
+        """
+        # Calculates the starting variable minimax needs
+        open_squares = game_state.board.get_open_squares()
+        empty_squares = game_state.board.get_empty_squares()
+
+        # Calculate for every increasing depths
+        for depth in range(1,depth):
+            start = time()
+            score, move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)
+            number_to_use = base_get_number_to_use(game_state.board, move[0], move[1])
+            move = Move(move[0], move[1], number_to_use)
+            self.propose_move(move)         
+            print("depth: " + str(depth))
+            print("score: " + str(score))
+            print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+            print("time: " + str(time()-start))
+            print(" ")
     
     def propose_move(self, move: Move) -> None:
         """
@@ -53,6 +84,14 @@ def greater(i: int, j: int) -> int:
 
 def smaller(i: int, j: int) -> int:
     return i < j
+
+def base_get_number_to_use(board, i, j):
+    for number in range(1,board.N+1):
+        new_board = deepcopy(board)
+        new_board.put(i, j, number)
+        if solve_sudoku("bin\\solve_sudoku.exe", str(new_board)) == "The sudoku has a solution.":
+            return number
+    
 
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
 is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")): 
@@ -189,68 +228,80 @@ def get_positions_in_a_block(position : int, board : SudokuBoard):
             lista.append(value)
     return(lista)
 
-    #returns the values of all squares (cells) constituting the row to which the [i, j] square (cell) belongs
-    def get_values_in_a_row(self, i:int, board : SudokuBoard):
-        return([self.get(i, column) for column in range(board.N)])
+#returns the values of all squares (cells) constituting the row to which the [i, j] square (cell) belongs
+def get_values_in_a_row(self, i:int, board : SudokuBoard):
+    return([self.get(i, column) for column in range(board.N)])
+
+#returns the values of all squares (cells) constituting the row to which the [i, j] square (cell) belongs
+def get_values_in_a_column(self, i:int, board : SudokuBoard):
+    return([self.get(i, row) for row in range(board.N)])
+
+#returns the values of all squares (cells) constituting the block to which the [i, j] square (cell) belongs
+def get_values_in_a_block(self, i:int, j:int, board : SudokuBoard):
+    position = board.rc2f(i, j)
+    positions = get_positions_in_a_block(position, board)
+    positions_converted = [board.f2rc(position) for position in positions]
+    return(self.get(x[0], x[1]) for x in positions_converted)
+
+def get_number_to_use(board : SudokuBoard, i:int, j:int):
+    """First, it lists all unique numbers in the row and column and block of our cell(square)
+    Secondly, it takes all possible values (1, 2, 3, ..., N) and deletes the ones that showed up already
     
-    #returns the values of all squares (cells) constituting the row to which the [i, j] square (cell) belongs
-    def get_values_in_a_column(self, i:int, board : SudokuBoard):
-        return([self.get(i, row) for row in range(board.N)])
+    TODO: Check if sudoku remains solvable after this move. Also, test it."""
     
-    #returns the values of all squares (cells) constituting the block to which the [i, j] square (cell) belongs
-    def get_values_in_a_block(self, i:int, j:int, board : SudokuBoard):
-        position = board.rc2f(i, j)
-        positions = get_positions_in_a_block(position, board)
-        positions_converted = [board.f2rc(position) for position in positions]
-        return(self.get(x[0], x[1]) for x in positions_converted)
+    rowvals = get_values_in_a_row(i, board)
+    colvals = get_values_in_a_column(j, board)
+    blockvals = get_values_in_a_block(i, j, board)
+    if len(blockvals) == 1:
+        out = (set(range(1, board.N)) - set(blockvals)).pop()
+    else:
+        if len(rowvals) == 1:
+            out = (set(range(1, board.N)) - set(rowvals)).pop()
+        if len(colvals) == 1:
+            out = (set(range(1, board.N)) - set(colvals)).pop()
+        '''they should be the same if sudoku makes sense'''
     
-    def get_number_to_use(self, i:int, j:int, board : SudokuBoard):
-        """First, it lists all unique numbers in the row and column and block of our cell(square)
-        Secondly, it takes all possible values (1, 2, 3, ..., N) and deletes the ones that showed up already
+    numbers_used = set(rowvals) + set(colvals) + set(blockvals)
+    numbers_available = set(range(1, board.N)) - numbers_used
+    
+    if len(numbers_available) == 1:
+        return numbers_available.pop()
+    
+    #poss_moves = set([_ for _ in range(board.N+1)]) - set([0]) - numbers_used
+    #check = lambda x: x//1.5 + 4 if x <= 6 else x//1.5 - 3
+    
+    return random.choice(numbers_available)
+    '''errors = 999
+    while errors > 0:
+        board2 = deepcopy(board)
+        opens = game_state.board2.get_open_squares()
+        for square in opens:
+            coords_x, coords_y = square[0], square[1]
+            number = random.randint(1, 9)
+            board2.put(coords_x, coords_y, number)
+        for i in range(1, board.N):
+            if len(get_values_in_a_row(i)) != len(set(get_values_in_a_row(i))):
+                errors += 1
+            if len(get_values_in_a column(i)) != len(set(get_values_in_a column(i))):
+                errors += 1
         
-        TODO: Check if sudoku remains solvable after this move. Also, test it."""
-        
-        rowvals = get_values_in_a_row(i, board)
-        colvals = get_values_in_a_column(j, board)
-        blockvals = get_values_in_a_block(i, j, board)
-        if len(blockvals) == 1:
-            out = (set(range(1, board.N)) - set(blockvals)).pop()
-        else:
-            if len(rowvals) == 1:
-                out = (set(range(1, board.N)) - set(rowvals)).pop()
-            if len(colvals) == 1:
-                out = (set(range(1, board.N)) - set(colvals)).pop()
-            '''they should be the same if sudoku makes sense'''
-        
-        numbers_used = set(rowvals) + set(colvals) + set(blockvals)
-        numbers_available = set(range(1, board.N)) - numbers_used
-        
-        if len(numbers_available) == 1:
-            return numbers_available.pop()
-        
-        #poss_moves = set([_ for _ in range(board.N+1)]) - set([0]) - numbers_used
-        #check = lambda x: x//1.5 + 4 if x <= 6 else x//1.5 - 3
-        
-        return random.choice(numbers_available)
-        '''errors = 999
-        while errors > 0:
-            board2 = deepcopy(board)
-            opens = game_state.board2.get_open_squares()
-            for square in opens:
-                coords_x, coords_y = square[0], square[1]
-                number = random.randint(1, 9)
-                board2.put(coords_x, coords_y, number)
-            for i in range(1, board.N):
-                if len(get_values_in_a_row(i)) != len(set(get_values_in_a_row(i))):
-                    errors += 1
-                if len(get_values_in_a column(i)) != len(set(get_values_in_a column(i))):
-                    errors += 1
-            
-            errors -= 999'''
+        errors -= 999'''
                 
     
 
 # Adds three function as methods of SudokuBoard for ease of use
 SudokuBoard.get_open_squares = get_open_squares
 SudokuBoard.get_empty_squares = get_empty_squares
-SudokuBoard.get_number_to_use = get_number_to_use
+
+from competitive_sudoku.sudoku import load_sudoku
+
+#loads board and creates game_state
+initial_board = load_sudoku("boards\\random-2x3.txt")
+game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
+
+
+ai = SudokuAI()
+ai.compute_best_move(game_state, 6) #runs the ai with the new get_number_to_use, to depth 6
+
+ai = SudokuAI()
+ai.base_compute_best_move(game_state, 6) #runs the ai with the base get_number_to_use (the old one), to depth 6
