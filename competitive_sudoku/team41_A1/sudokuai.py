@@ -13,7 +13,8 @@ class SudokuAI(object):
         """
         The AI calculates the best move for the given game state.
         It continuously updates the best_move value until forced to stop.
-        Firstly it uses minimax to determine the best square, then determines a valid number for that square.
+        Firstly, it creates a solved version of the sudoku such that it has a valid number for every square.
+        Then it repeatedly uses minimax to determine the best square, at increasing depths.
         @param game_state: The starting game state.
         """
         # Calculates the starting variable minimax needs
@@ -24,7 +25,7 @@ class SudokuAI(object):
         # Gives a solution of the board
         solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(open_squares), numbers_left)
 
-        # Calculate for every increasing depths
+        # Calculate for every increasing depth
         for depth in range(1,9999):
             move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)[1]
             number_to_use = solved_board.get(move[0], move[1])
@@ -56,23 +57,23 @@ def smaller(i: int, j: int) -> int:
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
 is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")): 
     """
-    A version of the minimax algorithm implementing alpha beta pruning.
-    Every time we create a child we calculate how many points the move associated with that child might get us.
+    A version of the minimax algorithm implementing alpha-beta pruning.
+    Every time we create a child, we calculate how many points the move associated with that child might get us.
     This calculation is done with empty_squares, while all potential moves are kept track of via open_squares.
     Variables with default values take those values during the first iteration.
     @param max_depth: The maximum depth the function is allowed to further search from its current depth.
     @param open_squares: A list containing all still open squares/possible moves.
-    @param empty_squares: A dictionary containing the amount of empty square for each group.
-    @param m: The amount of rows per region for this board, used to calculate regions from coordinates.
-    @param n: The amount of columns per region for this board, used to calculate regions from coordinates.
-    @param is_maximizing_player: Wether the current player is attempting to maximize or minimize the score.
+    @param empty_squares: A dictionary containing the number of empty squares for each group.
+    @param m: The number of rows per region for this board, used to calculate regions from coordinates.
+    @param n: The number of columns per region for this board, used to calculate regions from coordinates.
+    @param is_maximizing_player: Whether the current player is attempting to maximize or minimize the score.
     @param current_score: The score at the node we start this iteration of minimax on.
     @alpha: The alpha for alpha-beta pruning.
     @beta: The beta for alpha-beta pruning.
     @return: The score that will be reached from this node a maximum depth and the optimal next move to achieve that.
     """
     
-    # If we have hit either the maximum depth or if there are no more moves left we stop iteration
+    # If we have hit either the maximum depth or if there are no more moves left, we stop iteration
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
 
@@ -133,11 +134,11 @@ def get_open_squares(board: SudokuBoard) -> list:
 
 def get_empty_squares(board: SudokuBoard) -> dict:
     """
-    For the current board, gets the amount of empty squares for each row/column/region.
+    For the current board, gets the number of empty squares for each row/column/region.
     @param board: The board this should be done on.
-    @return: A dictionary with for the keys "row", "column" and "region" a list with the amount of empty squares per group.
+    @return: A dictionary with keys: "row", "column" and "region"; and values being lists with the number of empty squares per group.
     """
-    # Calculates the amount of empty squares per row
+    # Calculates the number of empty squares per row
     empty_row = []
     for i in range(board.N):
         current_empty_row = 0
@@ -146,7 +147,7 @@ def get_empty_squares(board: SudokuBoard) -> dict:
         
         empty_row.append(current_empty_row)
     
-    # Calculates the amount of empty squares per column
+    # Calculates the number of empty squares per column
     empty_column = []
     for i in range(board.N):
         current_empty_column = 0
@@ -155,7 +156,7 @@ def get_empty_squares(board: SudokuBoard) -> dict:
         
         empty_column.append(current_empty_column)
     
-    # Calculates the amount of empty squares per region
+    # Calculates the number of empty squares per region
     empty_region = []
     for i in range(board.N):
         current_empty_region = 0
@@ -172,7 +173,7 @@ def get_numbers_left(board: SudokuBoard):
     '''
     For the current board, gets the numbers not yet in a group for each row/column/region.
     @param board: The board this should be done on.
-    @return: A dictionary with for the keys "row", "column" and "region" a list with the numbers per group.
+    @return: A dictionary with keys: "row", "column" and "region"; and values being lists with the numbers unused per group.
     '''
     # Calculates the missing numbers for each row
     rows = []
@@ -204,8 +205,8 @@ def get_numbers_left(board: SudokuBoard):
 
 def solve_sudoku(board, open_squares, numbers_left):
     '''
-    Iteratively given a solution to the given sudoku.
-    First fills in any squares where only one number is possible, then randomly guesses.
+    Iteratively gives a solution to the given sudoku.
+    First, fills in any squares where only one number is possible, then randomly guesses.
     @param open_squares: A list containing all still open squares/possible moves.
     @param empty_squares: A dictionary containing the missing numbers for each group.
     @return: A filled board.
@@ -218,11 +219,11 @@ def solve_sudoku(board, open_squares, numbers_left):
         if len(possibilities) == 1:
             number = next(iter(possibilities))
 
-        # If this is the case a previous ques was wrong
+        # If this is the case, a previous guess was wrong
         elif len(possibilities) == 0:
             return -1
 
-    # If squares can be filled in do so and start back at the beginning
+    # If squares can be filled in, do so and start back at the beginning
     if result != []:
         for i in result:
             board.put(i[0][0], i[0][1], i[1])
@@ -233,7 +234,7 @@ def solve_sudoku(board, open_squares, numbers_left):
             
         return solve_sudoku(board, open_squares, numbers_left)
     
-    # If no squares can be filled in make a guess until you hit a correct one
+    # If no squares can be filled in, keep making a guess until you hit a correct one
     elif board.empty in board.squares:
         iterator = iter(possibilities)
         for number in iterator:
@@ -252,10 +253,10 @@ def solve_sudoku(board, open_squares, numbers_left):
             if result != -1:
                 return result
 
-        # If no possible number worked a previous ques was wrong 
+        # If no possible number worked, a previous guess was wrong 
         return -1
     
-    # If the board is full return
+    # If the board is full, return
     return board
 
 # Adds three function as methods of SudokuBoard for ease of use
