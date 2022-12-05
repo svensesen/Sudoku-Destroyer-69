@@ -322,6 +322,35 @@ class SudokuAI(object):
             print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
             print("time: " + str(time()-start))
             print(" ")
+
+    def compute_best_move2(self, game_state: GameState, max_depth = 9999, minimax_type = minimax) -> None:
+        """
+        The AI calculates the best move for the given game state.
+        It continuously updates the best_move value until forced to stop.
+        Firstly, it creates a solved version of the sudoku such that it has a valid number for every square.
+        Then it repeatedly uses minimax to determine the best square, at increasing depths.
+        @param game_state: The starting game state.
+        """
+        start = time()
+
+        # Calculates the starting variable minimax needs
+        open_squares = game_state.board.get_open_squares()
+        empty_squares = game_state.board.get_empty_squares()
+        numbers_left = game_state.board.get_numbers_left()
+
+        # Gives a solution of the board
+        solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(open_squares), numbers_left)
+
+        # Calculate for every increasing depth
+        for depth in range(1,max_depth):
+            score, move = minimax_type(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)
+            number_to_use = solved_board.get(move[0], move[1])
+            self.propose_move(Move(move[0], move[1], number_to_use))
+            print("depth: " + str(depth))
+            print("score: " + str(score))
+            print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+            print("time: " + str(time()-start))
+            print(" ")
     
     def propose_move(self, move: Move) -> None:
         """
@@ -348,3 +377,4 @@ game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
 
 ai.compute_best_move(game_state, 6, minimax)
 ai.compute_best_move(game_state, 6, minimax2)
+ai.compute_best_move2(game_state, 6, minimax2)
