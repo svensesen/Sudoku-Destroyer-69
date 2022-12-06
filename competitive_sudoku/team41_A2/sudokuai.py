@@ -1,5 +1,5 @@
 from copy import deepcopy
-from competitive_sudoku.sudoku import GameState, Move, SudokuBoard
+from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
 
 class SudokuAI(object):
     """
@@ -61,7 +61,7 @@ class SudokuAI(object):
             / game_state.board.m)*game_state.board.m + int(move[1] / game_state.board.n)])
         moves = [Move(move[0], move[1], number) for number in numbers]
         non_taboo_moves = [move for move in set(moves) if move not in set(game_state.taboo_moves)]
-        self.propose_move(Move(move[0], move[1], non_taboo_moves[0]))
+        self.propose_move(non_taboo_moves[0])
         
 #The below functions exist so that we can create certain references in the minimax function
 def greater(i: int, j: int) -> int:
@@ -279,3 +279,10 @@ def solve_sudoku(board: SudokuBoard, open_squares: list, numbers_left: dict) -> 
 SudokuBoard.get_open_squares = get_open_squares
 SudokuBoard.get_empty_squares = get_empty_squares
 SudokuBoard.get_numbers_left = get_numbers_left
+
+# Makes moves hashable
+def move_hash(self):
+    return hash((self.i, self.j, self.value))
+
+Move.__hash__ = move_hash
+TabooMove.__hash__ = move_hash
