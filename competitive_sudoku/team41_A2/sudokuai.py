@@ -22,6 +22,9 @@ class SudokuAI(object):
         empty_squares = game_state.board.get_empty_squares()
         numbers_left = game_state.board.get_numbers_left()
 
+        # Quickly propose a valid move to have something to present
+        self.quick_propose_valid_move(game_state, open_squares, numbers_left)
+        
         # Gives a solution of the board
         solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(open_squares), numbers_left)
 
@@ -46,6 +49,19 @@ class SudokuAI(object):
         self.best_move[2] = value
         if self.lock:
             self.lock.release()
+    
+    def quick_propose_valid_move(self, game_state: GameState, open_squares: list, numbers_left: dict) -> None:
+        """
+        Proposes a move which is neither illegal, nor a taboo move, though it might be a bomb move.
+        @param game_state: The game state for which this is happening
+        @param open_squares: A list of coordinates for all empty squares (result of the get_open_squares function)
+        @param numbers_left: A dictionary with for each group which number are not in that group (result of the get_numbers_left function)"""
+        move = open_squares[0]
+        numbers = set(numbers_left["rows"][move[0]] & numbers_left["columns"][move[1]] & numbers_left["regions"][int(move[0] \
+            / game_state.board.m)*game_state.board.m + int(move[1] / game_state.board.n)])
+        moves = [Move(move[0], move[1], number) for number in numbers]
+        non_taboo_moves = [move for move in set(moves) if move not in set(game_state.taboo_moves)]
+        self.propose_move(Move(move[0], move[1], non_taboo_moves[0]))
         
 #The below functions exist so that we can create certain references in the minimax function
 def greater(i: int, j: int) -> int:
@@ -55,7 +71,7 @@ def smaller(i: int, j: int) -> int:
     return i < j
 
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
-is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")): 
+is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")) -> set: 
     """
     A version of the minimax algorithm implementing alpha-beta pruning.
     Every time we create a child, we calculate how many points the move associated with that child might get us.
@@ -169,7 +185,7 @@ def get_empty_squares(board: SudokuBoard) -> dict:
 
     return {"row": empty_row, "column": empty_column, "region": empty_region}
 
-def get_numbers_left(board: SudokuBoard):
+def get_numbers_left(board: SudokuBoard) -> dict:
     '''
     For the current board, gets the numbers not yet in a group for each row/column/region.
     @param board: The board this should be done on.
@@ -203,7 +219,7 @@ def get_numbers_left(board: SudokuBoard):
 
     return {"rows": rows, "columns": columns, "regions": regions}
 
-def solve_sudoku(board, open_squares, numbers_left):
+def solve_sudoku(board: SudokuBoard, open_squares: list, numbers_left: dict) -> SudokuBoard:
     '''
     Iteratively gives a solution to the given sudoku.
     First, fills in any squares where only one number is possible, then randomly guesses.
