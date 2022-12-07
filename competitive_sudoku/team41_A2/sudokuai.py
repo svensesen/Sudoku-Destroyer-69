@@ -1,6 +1,8 @@
 from copy import deepcopy
 from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
 
+odds = {} # A global variable for hacky reasons
+
 class SudokuAI(object):
     """
     Sudoku AI that computes a move for a given sudoku configuration.
@@ -27,6 +29,12 @@ class SudokuAI(object):
         
         # Gives a solution of the board
         solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(open_squares), numbers_left)
+
+        # This sets the dictionary odds, it returns 1 if the variable is odd and not 1 (only for this sudoku)
+        global odds
+        odds = {1:0, 2:0}
+        for i in range(3, game_state.board.N+1):
+            odds[i] = int(i%2 == 1)
 
         # Calculate for every increasing depth
         for depth in range(1,9999):
@@ -103,8 +111,14 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
     for move in open_squares[:]: 
 
         # Calculates how the move would change the score
-        amount_finished = (empty_squares["row"][move[0]] == 1) + (empty_squares["column"][move[1]] == 1) + (empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] == 1)
-        new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
+        row_amount = empty_squares["row"][move[0]]
+        column_amount = empty_squares["column"][move[1]]
+        region_amount = empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)]
+
+        amount_finished = (row_amount == 1) + (column_amount == 1) + (region_amount == 1)
+        amount_even = odds[row_amount] + odds[column_amount] + odds[region_amount]
+        
+        new_score = current_score + multiplier*({0:0, 1:1, 2:3, 3:7}[amount_finished] + amount_even*0.01)
 
         # Removes the move from open_squares and updates empty_squares to account for the move
         open_squares.remove(move)
