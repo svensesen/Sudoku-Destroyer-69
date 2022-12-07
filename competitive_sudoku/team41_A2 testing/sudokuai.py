@@ -228,8 +228,6 @@ def get_numbers_left(board: SudokuBoard):
     return {"rows": rows, "columns": columns, "regions": regions}
 
 
-
-
 def solve_sudoku(board, open_squares, numbers_left):
     '''
     Iteratively gives a solution to the given sudoku.
@@ -291,20 +289,30 @@ def solve_sudoku(board, open_squares, numbers_left):
     return board
 
 
-# Adds three function as methods of SudokuBoard for ease of use
+def mapping_point_to_region_number(board, point: tuple) -> int:
+    region_number = point[0] - point[0] % board.m
+    region_number += point[1]//board.n
+    return(region_number)
+
+
+def get_open_squares_per_region(board) -> dict:
+    '''Returns a dictionary of the form {region_number: [(row, column), (row, column), ...], ...}'''
+    empty_squares = get_open_squares(board)
+    region_numbers = [mapping_point_to_region_number(board, point) for point in empty_squares]
+    region_dict = {}
+    for i in range(len(region_numbers)):
+        if (region_numbers[i] not in region_dict):
+            region_dict[region_numbers[i]] = [empty_squares[i]]
+        else:
+            region_dict[region_numbers[i]].append(empty_squares[i])
+    return(region_dict)
+
+
+# Adds four functions as methods of SudokuBoard for ease of use
 SudokuBoard.get_open_squares = get_open_squares
 SudokuBoard.get_empty_squares = get_empty_squares
 SudokuBoard.get_numbers_left = get_numbers_left
-
-from competitive_sudoku.sudoku import load_sudoku
-
-ai = SudokuAI()
-initial_board = load_sudoku("boards\\random-3x3.txt")
-game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
-
-#ai.compute_best_move(game_state, 6)
-
-print(print_board(initial_board))
+SudokuBoard.get_empty_squares_per_region = get_open_squares_per_region
 
 
 def present_only_once(wow: list, value: int) -> bool:
@@ -318,17 +326,51 @@ def present_only_once(wow: list, value: int) -> bool:
     return(True)
 
 
-def fill_in_one_region(board, region_number: int):
+def get_numbers_left_one_group(board, group: str, group_number: int):
+    '''
+    @param board: a sudoku board
+    @param group: pass "row", "column" or "region" to indicate what are you checking on
+    @param group_number: integer from 0 to n times m minus 1
+    @return: set of numbers not yet used inside the given group
+    '''
+    if (group == "row"):
+        this_row = []
+        for column in range(board.N):
+            this_row.append(board.get(group_number, column))
+        return ({x for x in range(1, board.N + 1) if x not in set(filter((0).__ne__, this_row))})
+
+    elif (group == "column"):
+        this_column = []
+        for row in range(board.N):
+            this_column.append(board.get(row, group_number))
+        return ({x for x in range(1, board.N + 1) if x not in set(filter((0).__ne__, this_column))})
+
+    elif (group == "region"):
+        this_region = []
+        for value in range(board.N):
+            row = int(group_number / board.m) * board.m + int(value / board.n)
+            column = (group_number % board.m) * board.n + (value % board.n)
+            this_region.append(board.get(row, column))
+        return ({x for x in range(1, board.N + 1) if x not in set(filter((0).__ne__, this_region))})
+    else:
+        raise (ValueError("group parameter can only take the values row, column or region"))
+
+
+def fill_in_one_region(board, region_number: int) -> None:
     '''For each square inside the region, create a set of possible numbers.
     If a number only is present in one of all the sets, fill the square and recurse
     @param board: board
     @param region_number: from 0 up to N times N - 1
-    @return: '''
+    @return: None'''
 
-    # TO DO: make this only work with an individual region, not the entire board
-    open_squares = board.get_open_squares()
+    # Obtain a list of empty squares only of the given region. If it is completely filled, return None to skip
+    open_squares = get_open_squares_per_region(board) # WHY CAN'T I MAKE IT A METHOD OF A BOARD?
+    if (region_number not in open_squares):
+        print("wow")
+        return(None)
+    open_squares = open_squares[region_number]
 
-    # For each open square on the board (destined to be "in one region"), save a set of still possible numbers there
+    # For each open square on the board (in one region), save a set of still possible numbers there
     sets_for_open_squares = []
     for square in open_squares:
         numbers_left_row = get_numbers_left_one_group(board, group="row", group_number=square[0])
@@ -343,55 +385,26 @@ def fill_in_one_region(board, region_number: int):
         for i in range(0, len(open_squares)):
             square = open_squares[i]
             if (present_only_once(sets_for_open_squares, number) and (number in sets_for_open_squares[i])):
-            # Put this number as the value for that square and raise a flag about a change having been made
+                # Put this number as the value for that square and raise a flag about a change having been made
                 board.put(square[0], square[1], number)
                 change_made = True
 
-    # If the flag "a change has been made" is on, recurse:
+    # If the flag "a change has been made" is on, recurse. Otherwise, terminate:
     if (change_made):
         fill_in_one_region(board, region_number)
 
-    # If the flag "a change has been made" is off, terminate:
 
+from competitive_sudoku.sudoku import load_sudoku
 
-def get_numbers_left_one_group(board, group: str, group_number: int):
-        '''
-        @param board: a sudoku board
-        @param group: pass "row", "column" or "region" to indicate what are you checking on
-        @param group_number: integer from 0 to n times m minus 1
-        @return: set of numbers not yet used inside the given group
-        '''
-        if (group == "row"):
-            this_row = []
-            for column in range(board.N):
-                this_row.append(board.get(group_number, column))
-            return({x for x in range(1, board.N + 1) if x not in set(filter((0).__ne__, this_row))})
-
-        elif (group == "column"):
-            this_column = []
-            for row in range(board.N):
-                this_column.append(board.get(row, group_number))
-            return({x for x in range(1, board.N + 1) if x not in set(filter((0).__ne__, this_column))})
-
-        elif (group == "region"):
-            this_region = []
-            for value in range(board.N):
-                row = int(group_number / board.m) * board.m + int(value / board.n)
-                column = (group_number % board.m) * board.n + (value % board.n)
-                this_region.append(board.get(row, column))
-            return({x for x in range(1, board.N + 1) if x not in set(filter((0).__ne__, this_region))})
-        else:
-            raise(ValueError("group parameter can only take the values row, column or region"))
-
-# print(get_numbers_left_one_group(initial_board, "region", 3))
-# fill_in_one_region(initial_board, 1)
-
-
-def mapping_point_to_region_number(board, point : tuple) -> int:
-    region_number = point[0] - point[0] % board.m
-    region_number += point[1]//board.n
-    return(region_number)
-
-
-print(initial_board.get_open_squares())
-print(mapping_point_to_region_number(initial_board, (5, 8)))
+ai = SudokuAI()
+initial_board = load_sudoku("boards\\random-3x3.txt")
+game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
+#ai.compute_best_move(game_state, 6)
+print(print_board(initial_board))
+#print(get_open_squares(initial_board))
+print(get_open_squares_per_region(initial_board))
+print(get_numbers_left_one_group(initial_board, "region", 3))
+print(fill_in_one_region(initial_board, 3))
+print(print_board(initial_board))
+#print(initial_board.get_open_squares())
+#print(mapping_point_to_region_number(initial_board, (5, 8)))
