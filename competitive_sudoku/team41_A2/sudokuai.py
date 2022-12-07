@@ -115,9 +115,10 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
         column_amount = empty_squares["column"][move[1]]
         region_amount = empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)]
 
+        # First one is the desire to finish rows, second one is the desire to make rows even/not odd
         amount_finished = (row_amount == 1) + (column_amount == 1) + (region_amount == 1)
         amount_even = odds[row_amount] + odds[column_amount] + odds[region_amount]
-        
+
         new_score = current_score + multiplier*({0:0, 1:1, 2:3, 3:7}[amount_finished] + amount_even*0.01)
 
         # Removes the move from open_squares and updates empty_squares to account for the move
