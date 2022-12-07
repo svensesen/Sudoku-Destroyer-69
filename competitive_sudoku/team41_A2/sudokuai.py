@@ -1,5 +1,7 @@
 from copy import deepcopy
-from competitive_sudoku.sudoku import GameState, Move, SudokuBoard
+from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
+
+odds = {} # A global variable for hacky reasons
 
 class SudokuAI(object):
     """
@@ -22,8 +24,17 @@ class SudokuAI(object):
         empty_squares = game_state.board.get_empty_squares()
         numbers_left = game_state.board.get_numbers_left()
 
+        # Quickly propose a valid move to have something to present
+        self.quick_propose_valid_move(game_state, open_squares, numbers_left)
+        
         # Gives a solution of the board
         solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(open_squares), numbers_left)
+
+        # This sets the dictionary odds, it returns 1 if the variable is odd and not 1 (only for this sudoku)
+        global odds
+        odds = {1:0, 2:0}
+        for i in range(3, game_state.board.N+1):
+            odds[i] = int(i%2 == 1)
 
         # Calculate for every increasing depth
         for depth in range(1,9999):
@@ -46,6 +57,19 @@ class SudokuAI(object):
         self.best_move[2] = value
         if self.lock:
             self.lock.release()
+    
+    def quick_propose_valid_move(self, game_state: GameState, open_squares: list, numbers_left: dict) -> None:
+        """
+        Proposes a move which is neither illegal, nor a taboo move, though it might be a bomb move.
+        @param game_state: The game state for which this is happening
+        @param open_squares: A list of coordinates for all empty squares (result of the get_open_squares function)
+        @param numbers_left: A dictionary with for each group which number are not in that group (result of the get_numbers_left function)"""
+        move = open_squares[0]
+        numbers = set(numbers_left["rows"][move[0]] & numbers_left["columns"][move[1]] & numbers_left["regions"][int(move[0] \
+            / game_state.board.m)*game_state.board.m + int(move[1] / game_state.board.n)])
+        moves = [Move(move[0], move[1], number) for number in numbers]
+        non_taboo_moves = [move for move in set(moves) if move not in set(game_state.taboo_moves)]
+        self.propose_move(non_taboo_moves[0])
         
 #The below functions exist so that we can create certain references in the minimax function
 def greater(i: int, j: int) -> int:
@@ -55,7 +79,7 @@ def smaller(i: int, j: int) -> int:
     return i < j
 
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
-is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")): 
+is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")) -> set: 
     """
     A version of the minimax algorithm implementing alpha-beta pruning.
     Every time we create a child, we calculate how many points the move associated with that child might get us.
@@ -87,8 +111,15 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
     for move in open_squares[:]: 
 
         # Calculates how the move would change the score
-        amount_finished = (empty_squares["row"][move[0]] == 1) + (empty_squares["column"][move[1]] == 1) + (empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] == 1)
-        new_score = current_score + multiplier*{0:0, 1:1, 2:3, 3:7}[amount_finished]
+        row_amount = empty_squares["row"][move[0]]
+        column_amount = empty_squares["column"][move[1]]
+        region_amount = empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)]
+
+        # First one is the desire to finish rows, second one is the desire to make rows even/not odd
+        amount_finished = (row_amount == 1) + (column_amount == 1) + (region_amount == 1)
+        amount_even = odds[row_amount] + odds[column_amount] + odds[region_amount]
+
+        new_score = current_score + multiplier*({0:0, 1:1, 2:3, 3:7}[amount_finished] + amount_even*0.01)
 
         # Removes the move from open_squares and updates empty_squares to account for the move
         open_squares.remove(move)
@@ -169,7 +200,7 @@ def get_empty_squares(board: SudokuBoard) -> dict:
 
     return {"row": empty_row, "column": empty_column, "region": empty_region}
 
-def get_numbers_left(board: SudokuBoard):
+def get_numbers_left(board: SudokuBoard) -> dict:
     '''
     For the current board, gets the numbers not yet in a group for each row/column/region.
     @param board: The board this should be done on.
@@ -203,7 +234,7 @@ def get_numbers_left(board: SudokuBoard):
 
     return {"rows": rows, "columns": columns, "regions": regions}
 
-def solve_sudoku(board, open_squares, numbers_left):
+def solve_sudoku(board: SudokuBoard, open_squares: list, numbers_left: dict) -> SudokuBoard:
     '''
     Iteratively gives a solution to the given sudoku.
     First, fills in any squares where only one number is possible, then randomly guesses.
@@ -263,3 +294,10 @@ def solve_sudoku(board, open_squares, numbers_left):
 SudokuBoard.get_open_squares = get_open_squares
 SudokuBoard.get_empty_squares = get_empty_squares
 SudokuBoard.get_numbers_left = get_numbers_left
+
+# Makes moves hashable
+def move_hash(self):
+    return hash((self.i, self.j, self.value))
+
+Move.__hash__ = move_hash
+TabooMove.__hash__ = move_hash
