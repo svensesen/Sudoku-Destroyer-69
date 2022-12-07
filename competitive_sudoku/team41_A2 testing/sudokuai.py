@@ -1,5 +1,6 @@
 from copy import deepcopy
 from competitive_sudoku.sudoku import GameState, Move, SudokuBoard
+from time import time #not required for the actual code
 
 class SudokuAI(object):
     """
@@ -9,7 +10,7 @@ class SudokuAI(object):
         self.best_move = [0, 0, 0]
         self.lock = None
     
-    def compute_best_move(self, game_state: GameState) -> None:
+    def compute_best_move(self, game_state: GameState, max_depth) -> None:
         """
         The AI calculates the best move for the given game state.
         It continuously updates the best_move value until forced to stop.
@@ -17,6 +18,8 @@ class SudokuAI(object):
         Then it repeatedly uses minimax to determine the best square, at increasing depths.
         @param game_state: The starting game state.
         """
+        start = time()
+
         # Calculates the starting variable minimax needs
         open_squares = game_state.board.get_open_squares()
         empty_squares = game_state.board.get_empty_squares()
@@ -26,10 +29,15 @@ class SudokuAI(object):
         solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(open_squares), numbers_left)
 
         # Calculate for every increasing depth
-        for depth in range(1,9999):
+        for depth in range(1,max_depth):
             move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)[1]
             number_to_use = solved_board.get(move[0], move[1])
             self.propose_move(Move(move[0], move[1], number_to_use))
+            print("depth: " + str(depth))
+            print("score: " + str(score))
+            print("move: " + str(move[0]) + ", " + str(move[1]) + ", " + str(number_to_use))
+            print("time: " + str(time()-start))
+            print(" ")
     
     def propose_move(self, move: Move) -> None:
         """
@@ -263,3 +271,12 @@ def solve_sudoku(board, open_squares, numbers_left):
 SudokuBoard.get_open_squares = get_open_squares
 SudokuBoard.get_empty_squares = get_empty_squares
 SudokuBoard.get_numbers_left = get_numbers_left
+
+
+from competitive_sudoku.sudoku import load_sudoku
+
+ai = SudokuAI()
+initial_board = load_sudoku("boards\\empty-3x3.txt")
+game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
+
+ai.compute_best_move(game_state, 6)
