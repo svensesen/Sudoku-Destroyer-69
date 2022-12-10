@@ -116,16 +116,9 @@ def simulate_game(initial_board: SudokuBoard, player1: SudokuAI, player2: Sudoku
             print(game_state)
         if game_state.scores[0] > game_state.scores[1]:
             print('Player 1 wins the game.')
-            with open(r"C:\Users\user\Documents\GitHub\Sudoku-Destroyer-69\competitive_sudoku\script_tests\one.txt", "a") as myfile:
-                myfile.write("3")
-            print('Player 2 wins the game.')
         elif game_state.scores[0] == game_state.scores[1]:
-            with open(r"C:\Users\user\Documents\GitHub\Sudoku-Destroyer-69\competitive_sudoku\script_tests\one.txt", "a") as myfile:
-                myfile.write("1")
-            print('Player 2 wins the game.')
+            print('The game ends in a draw.')
         elif game_state.scores[0] < game_state.scores[1]:
-            with open(r"C:\Users\user\Documents\GitHub\Sudoku-Destroyer-69\competitive_sudoku\script_tests\one.txt", "a") as myfile:
-                myfile.write("0")
             print('Player 2 wins the game.')
 
 
@@ -178,5 +171,4 @@ def main():
 
 
 if __name__ == '__main__':
-    __spec__ = None
     main()

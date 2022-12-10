@@ -292,7 +292,7 @@ def solve_sudoku(board, open_squares, numbers_left):
 def mapping_point_to_region_number(board, point: tuple) -> int:
     region_number = point[0] - point[0] % board.m
     region_number += point[1]//board.n
-    return(region_number)
+    return region_number
 
 
 def get_open_squares_per_region(board) -> dict:
