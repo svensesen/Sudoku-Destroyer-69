@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Dec 11 15:42:44 2022
+
+@author: -
+"""
 from copy import deepcopy
 from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
 
 odds = {} # A global variable for hacky reasons
-taboos = {} #also global cause I think this works like that
+last_taboo = None #also global cause I think this works like that
 
 class SudokuAI(object):
     """
@@ -11,7 +17,7 @@ class SudokuAI(object):
     def __init__(self):
         self.best_move = [0, 0, 0]
         self.lock = None
-    
+
     def compute_best_move(self, game_state: GameState) -> None:
         """
         The AI calculates the best move for the given game state.
@@ -36,10 +42,11 @@ class SudokuAI(object):
         odds = {1:0, 2:0}
         for i in range(3, game_state.board.N+1):
             odds[i] = int(i%2 == 1)
-
+        global last_taboo
+        last_taboo = (game_state.board.m, game_state.board.n)
         # Calculate for every increasing depth
         for depth in range(1,9999):
-            move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, m = game_state.board.m, n = game_state.board.n)[1]
+            move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, board = game_state.board)[1]
             number_to_use = solved_board.get(move[0], move[1])
             self.propose_move(Move(move[0], move[1], number_to_use))
     
@@ -79,7 +86,7 @@ def greater(i: int, j: int) -> int:
 def smaller(i: int, j: int) -> int:
     return i < j
 
-def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
+def minimax(max_depth: int, open_squares: list, empty_squares: dict, board: SudokuBoard = SudokuBoard(), 
 is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")) -> set: 
     """
     A version of the minimax algorithm implementing alpha-beta pruning.
@@ -89,15 +96,15 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
     @param max_depth: The maximum depth the function is allowed to further search from its current depth.
     @param open_squares: A list containing all still open squares/possible moves.
     @param empty_squares: A dictionary containing the number of empty squares for each group.
-    @param m: The number of rows per region for this board, used to calculate regions from coordinates.
-    @param n: The number of columns per region for this board, used to calculate regions from coordinates.
+    @param board: the sudoku board we are looking at, we get m and n from it
     @param is_maximizing_player: Whether the current player is attempting to maximize or minimize the score.
     @param current_score: The score at the node we start this iteration of minimax on.
     @alpha: The alpha for alpha-beta pruning.
     @beta: The beta for alpha-beta pruning.
     @return: The score that will be reached from this node a maximum depth and the optimal next move to achieve that.
     """
-    
+    m = board.m
+    n = board.n
     # If we have hit either the maximum depth or if there are no more moves left, we stop iteration
     if max_depth == 0 or not open_squares:
         return current_score, (-1,-1)
@@ -108,9 +115,26 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
     # Initializes where we store the best move and its associated score of this node
     best_score = value
     best_move = open_squares[0]
-
+    curr_empty = get_empty_squares(board)
+    
+    if all( map( lambda x: x == 2, curr_empty['region'] )):
+       	last_taboo[0] = last_taboo[0] + 1
+       	last_taboo[1] = last_taboo[1] + 1
+       	best_move = last_taboo
+       	best_score = 4 #it's better than putting in a move and letting the 
+                            #opponent take a region worth 3 points
+    elif all( map( lambda x: x == 2, curr_empty['row'])) or all( map(lambda x: x == 2, curr_empty['column'] )):
+        last_taboo[0] = last_taboo[0] + 1
+       	last_taboo[1] = last_taboo[1] + 1
+       	best_move = last_taboo
+       	best_score = 2.5 #it's better than putting in a move and letting the 
+                         #opponent take a row/column or potential row/column pair
+                         #worth 1 or 2 points, BUT if we get a region it's a net gain
+                         #hence 2.5 as it is <2 but >3
+    
+    
     for move in open_squares[:]: 
-
+            
         # Calculates how the move would change the score
         row_amount = empty_squares["row"][move[0]]
         column_amount = empty_squares["column"][move[1]]
@@ -129,7 +153,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
         empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
     
         # Goes one layer of minimax deeper
-        returned_score = minimax(max_depth-1, open_squares, empty_squares, m, n, not is_maximizing_player, new_score, alpha, beta)[0]
+        returned_score = minimax(max_depth-1, open_squares, empty_squares, board, not is_maximizing_player, new_score, alpha, beta)[0]
        
         # Changes open_squares and empty_squares back to the original state
         open_squares.append(move)
@@ -147,7 +171,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
             else: beta = min(beta, best_score)
             if alpha >= beta:
                 break
-    
+  
     return best_score, best_move
 
 def get_open_squares(board: SudokuBoard) -> list:
@@ -171,6 +195,7 @@ def get_empty_squares(board: SudokuBoard) -> dict:
     @return: A dictionary with keys: "row", "column" and "region"; and values being lists with the number of empty squares per group.
     """
     # Calculates the number of empty squares per row
+    
     empty_row = []
     for i in range(board.N):
         current_empty_row = 0
