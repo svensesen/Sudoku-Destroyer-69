@@ -1,0 +1,193 @@
+opponent,board,time,starting,result,reason
+random,easy-2x2,0.1,True,1,no move
+random,easy-2x2,0.1,False,1,no move
+random,easy-2x2,0.5,True,1,regular
+random,easy-2x2,0.5,False,1,regular
+random,easy-2x2,1.0,True,1,regular
+random,easy-2x2,1.0,False,1,regular
+random,easy-2x2,5.0,True,1,regular
+random,easy-2x2,5.0,False,1,regular
+random,easy-3x3,0.1,True,-1,no move
+random,easy-3x3,0.1,False,1,no move
+random,easy-3x3,0.5,True,-1,no move
+random,easy-3x3,0.5,False,-1,no move
+random,easy-3x3,1.0,True,1,regular
+random,easy-3x3,1.0,False,1,regular
+random,easy-3x3,5.0,True,1,regular
+random,easy-3x3,5.0,False,1,regular
+random,empty-2x2,0.1,True,1,no move
+random,empty-2x2,0.1,False,1,no move
+random,empty-2x2,0.5,True,1,regular
+random,empty-2x2,0.5,False,1,regular
+random,empty-2x2,1.0,True,1,regular
+random,empty-2x2,1.0,False,1,regular
+random,empty-2x2,5.0,True,0,regular
+random,empty-2x2,5.0,False,-1,regular
+random,empty-2x3,0.1,True,1,no move
+random,empty-2x3,0.1,False,1,no move
+random,empty-2x3,0.5,True,-1,regular
+random,empty-2x3,0.5,False,1,regular
+random,empty-2x3,1.0,True,0,regular
+random,empty-2x3,1.0,False,1,regular
+random,empty-2x3,5.0,True,1,regular
+random,empty-2x3,5.0,False,1,regular
+random,empty-3x3,0.1,True,-1,no move
+random,empty-3x3,0.1,False,1,no move
+random,empty-3x3,0.5,True,-1,no move
+random,empty-3x3,0.5,False,-1,no move
+random,empty-3x3,1.0,True,-1,no move
+random,empty-3x3,1.0,False,-1,no move
+random,empty-3x3,5.0,True,1,regular
+random,empty-3x3,5.0,False,-1,no move
+random,empty-3x4,0.1,True,-1,no move
+random,empty-3x4,0.1,False,-1,no move
+random,empty-3x4,0.5,True,-1,no move
+random,empty-3x4,0.5,False,-1,no move
+random,empty-3x4,1.0,True,-1,no move
+random,empty-3x4,1.0,False,-1,no move
+random,empty-3x4,5.0,True,-1,no move
+random,empty-3x4,5.0,False,-1,no move
+random,empty-4x4,0.1,True,-1,no move
+random,empty-4x4,0.1,False,1,no move
+random,empty-4x4,0.5,True,-1,no move
+random,empty-4x4,0.5,False,-1,no move
+random,empty-4x4,1.0,True,-1,no move
+random,empty-4x4,1.0,False,-1,no move
+random,empty-4x4,5.0,True,-1,no move
+random,empty-4x4,5.0,False,-1,no move
+random,hard-3x3,0.1,True,-1,no move
+random,hard-3x3,0.1,False,1,no move
+random,hard-3x3,0.5,True,-1,no move
+random,hard-3x3,0.5,False,-1,no move
+random,hard-3x3,1.0,True,-1,no move
+random,hard-3x3,1.0,False,-1,no move
+random,hard-3x3,5.0,True,-1,no move
+random,hard-3x3,5.0,False,-1,no move
+random,random-2x3,0.1,True,1,no move
+random,random-2x3,0.1,False,1,no move
+random,random-2x3,0.5,True,1,regular
+random,random-2x3,0.5,False,1,regular
+random,random-2x3,1.0,True,-1,regular
+random,random-2x3,1.0,False,1,regular
+random,random-2x3,5.0,True,1,regular
+random,random-2x3,5.0,False,1,regular
+random,random-3x3,0.1,True,-1,no move
+random,random-3x3,0.1,False,1,no move
+random,random-3x3,0.5,True,1,regular
+random,random-3x3,0.5,False,1,regular
+random,random-3x3,1.0,True,1,regular
+random,random-3x3,1.0,False,1,regular
+random,random-3x3,5.0,True,1,regular
+random,random-3x3,5.0,False,1,regular
+random,random-3x4,0.1,True,-1,no move
+random,random-3x4,0.1,False,1,no move
+random,random-3x4,0.5,True,1,regular
+random,random-3x4,0.5,False,1,regular
+random,random-3x4,1.0,True,1,regular
+random,random-3x4,1.0,False,1,regular
+random,random-3x4,5.0,True,1,regular
+random,random-3x4,5.0,False,1,regular
+random,random-4x4,0.1,True,-1,no move
+random,random-4x4,0.1,False,1,no move
+random,random-4x4,0.5,True,-1,no move
+random,random-4x4,0.5,False,-1,no move
+random,random-4x4,1.0,True,-1,no move
+random,random-4x4,1.0,False,-1,no move
+random,random-4x4,5.0,True,-1,no move
+random,random-4x4,5.0,False,-1,no move
+greedy,easy-2x2,0.1,True,1,no move
+greedy,easy-2x2,0.1,False,1,no move
+greedy,easy-2x2,0.5,True,-1,regular
+greedy,easy-2x2,0.5,False,1,regular
+greedy,easy-2x2,1.0,True,-1,regular
+greedy,easy-2x2,1.0,False,1,regular
+greedy,easy-2x2,5.0,True,-1,regular
+greedy,easy-2x2,5.0,False,1,regular
+greedy,easy-3x3,0.1,True,-1,no move
+greedy,easy-3x3,0.1,False,1,no move
+greedy,easy-3x3,0.5,True,-1,no move
+greedy,easy-3x3,0.5,False,-1,no move
+greedy,easy-3x3,1.0,True,1,regular
+greedy,easy-3x3,1.0,False,1,regular
+greedy,easy-3x3,5.0,True,1,regular
+greedy,easy-3x3,5.0,False,-1,regular
+greedy,empty-2x2,0.1,True,1,no move
+greedy,empty-2x2,0.1,False,1,no move
+greedy,empty-2x2,0.5,True,-1,regular
+greedy,empty-2x2,0.5,False,-1,regular
+greedy,empty-2x2,1.0,True,-1,regular
+greedy,empty-2x2,1.0,False,-1,regular
+greedy,empty-2x2,5.0,True,1,regular
+greedy,empty-2x2,5.0,False,-1,regular
+greedy,empty-2x3,0.1,True,1,no move
+greedy,empty-2x3,0.1,False,1,no move
+greedy,empty-2x3,0.5,True,-1,regular
+greedy,empty-2x3,0.5,False,1,regular
+greedy,empty-2x3,1.0,True,-1,regular
+greedy,empty-2x3,1.0,False,-1,regular
+greedy,empty-2x3,5.0,True,1,regular
+greedy,empty-2x3,5.0,False,-1,regular
+greedy,empty-3x3,0.1,True,-1,no move
+greedy,empty-3x3,0.1,False,1,no move
+greedy,empty-3x3,0.5,True,-1,regular
+greedy,empty-3x3,0.5,False,1,regular
+greedy,empty-3x3,1.0,True,-1,no move
+greedy,empty-3x3,1.0,False,-1,no move
+greedy,empty-3x3,5.0,True,1,regular
+greedy,empty-3x3,5.0,False,-1,regular
+greedy,empty-3x4,0.1,True,-1,no move
+greedy,empty-3x4,0.1,False,1,no move
+greedy,empty-3x4,0.5,True,-1,no move
+greedy,empty-3x4,0.5,False,-1,no move
+greedy,empty-3x4,1.0,True,-1,no move
+greedy,empty-3x4,1.0,False,-1,no move
+greedy,empty-3x4,5.0,True,-1,no move
+greedy,empty-3x4,5.0,False,-1,no move
+greedy,empty-4x4,0.1,True,-1,no move
+greedy,empty-4x4,0.1,False,1,no move
+greedy,empty-4x4,0.5,True,-1,no move
+greedy,empty-4x4,0.5,False,-1,no move
+greedy,empty-4x4,1.0,True,-1,no move
+greedy,empty-4x4,1.0,False,-1,no move
+greedy,empty-4x4,5.0,True,-1,no move
+greedy,empty-4x4,5.0,False,-1,no move
+greedy,hard-3x3,0.1,True,-1,no move
+greedy,hard-3x3,0.1,False,1,no move
+greedy,hard-3x3,0.5,True,-1,no move
+greedy,hard-3x3,0.5,False,-1,no move
+greedy,hard-3x3,1.0,True,-1,no move
+greedy,hard-3x3,1.0,False,-1,no move
+greedy,hard-3x3,5.0,True,-1,no move
+greedy,hard-3x3,5.0,False,-1,no move
+greedy,random-2x3,0.1,True,1,no move
+greedy,random-2x3,0.1,False,1,no move
+greedy,random-2x3,0.5,True,1,regular
+greedy,random-2x3,0.5,False,1,regular
+greedy,random-2x3,1.0,True,-1,regular
+greedy,random-2x3,1.0,False,-1,regular
+greedy,random-2x3,5.0,True,-1,regular
+greedy,random-2x3,5.0,False,1,regular
+greedy,random-3x3,0.1,True,-1,no move
+greedy,random-3x3,0.1,False,1,no move
+greedy,random-3x3,0.5,True,1,regular
+greedy,random-3x3,0.5,False,-1,regular
+greedy,random-3x3,1.0,True,-1,regular
+greedy,random-3x3,1.0,False,1,regular
+greedy,random-3x3,5.0,True,1,regular
+greedy,random-3x3,5.0,False,-1,regular
+greedy,random-3x4,0.1,True,-1,no move
+greedy,random-3x4,0.1,False,1,no move
+greedy,random-3x4,0.5,True,-1,regular
+greedy,random-3x4,0.5,False,-1,regular
+greedy,random-3x4,1.0,True,1,regular
+greedy,random-3x4,1.0,False,-1,regular
+greedy,random-3x4,5.0,True,1,regular
+greedy,random-3x4,5.0,False,1,regular
+greedy,random-4x4,0.1,True,-1,no move
+greedy,random-4x4,0.1,False,1,no move
+greedy,random-4x4,0.5,True,-1,no move
+greedy,random-4x4,0.5,False,-1,no move
+greedy,random-4x4,1.0,True,-1,no move
+greedy,random-4x4,1.0,False,-1,no move
+greedy,random-4x4,5.0,True,-1,no move
+greedy,random-4x4,5.0,False,-1,no move
