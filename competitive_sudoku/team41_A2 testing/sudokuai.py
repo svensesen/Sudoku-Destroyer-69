@@ -232,6 +232,7 @@ def solve_sudoku(board, open_squares, numbers_left):
     '''
     Iteratively gives a solution to the given sudoku.
     First, fills in any squares where only one number is possible, then randomly guesses.
+    @param board: Current sudoku board
     @param open_squares: A list containing all still open squares/possible moves.
     @param numbers_left: A dictionary containing the missing numbers for each group???.
     @return: A filled board.
@@ -261,28 +262,27 @@ def solve_sudoku(board, open_squares, numbers_left):
 
     # If no squares have only 1 possible value to put in there, inspect the blocks
     # For each block, check if there is any number that only can be inputted into one square in that block
-
+    fill_in_all_regions(board)
 
     # If no squares can be filled in, keep making a guess until you hit a correct one
-    elif board.empty in board.squares:
-        iterator = iter(possibilities)
-        for number in iterator:
-            new_board = deepcopy(board)
-            new_board.put(move[0], move[1], number)
+    iterator = iter(possibilities)
+    for number in iterator:
+        new_board = deepcopy(board)
+        new_board.put(move[0], move[1], number)
 
-            new_open_squares = deepcopy(open_squares)
-            new_open_squares.remove(move)
+        new_open_squares = deepcopy(open_squares)
+        new_open_squares.remove(move)
 
-            new_numbers_left = deepcopy(numbers_left)
-            new_numbers_left["rows"][move[0]].remove(number)
-            new_numbers_left["columns"][move[1]].remove(number)
-            new_numbers_left["regions"][int(move[0] / board.m) * board.m + int(move[1] / board.n)].remove(number)
-            result = solve_sudoku(new_board, new_open_squares, new_numbers_left)
+        new_numbers_left = deepcopy(numbers_left)
+        new_numbers_left["rows"][move[0]].remove(number)
+        new_numbers_left["columns"][move[1]].remove(number)
+        new_numbers_left["regions"][int(move[0] / board.m) * board.m + int(move[1] / board.n)].remove(number)
+        result = solve_sudoku(new_board, new_open_squares, new_numbers_left)
 
-            if result != -1:
-                return result
+        if result != -1:
+            return result
 
-        # If no possible number worked, a previous guess was wrong 
+        # If no possible number worked, a previous guess was wrong
         return -1
 
     # If the board is full, return
@@ -363,7 +363,6 @@ def create_sets_for_open_squares(board, region_number: int) -> dict:
     # Obtain a list of empty squares only of the given region. If it is completely filled, return None to skip
     open_squares = get_open_squares_per_region(board)  # WHY CAN'T I MAKE IT A METHOD OF A BOARD?
     if (region_number not in open_squares):
-        print("wow")
         return({})
     open_squares = open_squares[region_number]
 
@@ -382,8 +381,8 @@ def create_sets_for_open_squares(board, region_number: int) -> dict:
 def fill_in_one_region(board, region_number: int, sets_for_open_squares: dict) -> None:
     '''For each square inside the region, create a set of possible numbers.
     If a number only is present in one of all the sets, fill the square and recurse
-    @param sets_for_open_squares: list of sets. Each set contains the inputtable numbers for one square
     @param board: board
+    @param sets_for_open_squares: list of sets. Each set contains the inputtable numbers for one square of ONE REGION
     @param region_number: from 0 up to N times N - 1
     @return: None'''
 
@@ -403,6 +402,22 @@ def fill_in_one_region(board, region_number: int, sets_for_open_squares: dict) -
         fill_in_one_region(board, region_number, sets_for_open_squares)
 
 
+def fill_in_all_regions(board) -> None:
+    '''Runs fill_in_one_region for all regions. If any changes were made, recurse.
+    @param board: board'''
+
+    # To know how many open squares are left, run this:
+    number_empty = sum(get_empty_squares(board)["row"])  # check if that works
+    for region_number in range(0, board.N):
+        # Computing the sets for open squares for each region separately:
+        sets_for_open_squares = create_sets_for_open_squares(board, region_number)
+        fill_in_one_region(board, region_number, sets_for_open_squares)
+
+    # If any changes were made (there are fewer open squares now than before) - recurse
+    if (number_empty - sum(get_empty_squares(board)["row"]) > 0):
+        fill_in_all_regions(board)
+
+
 from competitive_sudoku.sudoku import load_sudoku
 
 ai = SudokuAI()
@@ -412,9 +427,13 @@ game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
 print(print_board(initial_board))
 #print(get_open_squares(initial_board))
 print(get_open_squares_per_region(initial_board))
-print(get_numbers_left_one_group(initial_board, "region", 3))
-sets_for_open_squares = create_sets_for_open_squares(initial_board, 3)
-print(fill_in_one_region(initial_board, 3, sets_for_open_squares))
-print(type(initial_board))
+print(get_numbers_left_one_group(initial_board, "region", 0))
+#print(fill_in_one_region(initial_board, 3, sets_for_open_squares))
+print(sum(get_empty_squares(initial_board)["row"]))  # check if that works
+t0 = time()
+print(fill_in_all_regions(initial_board))
+t1 = time()
+print(t1 - t0)
+print(sum(get_empty_squares(initial_board)["row"]))  # check if that works
 print(print_board(initial_board))
 
