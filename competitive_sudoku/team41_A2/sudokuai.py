@@ -40,9 +40,9 @@ class SudokuAI(object):
     
     def propose_move(self, move: Move) -> None:
         """
+        Note: This function is implemented here to save time with importing
         Updates the best move that has been found so far.
         N.B. DO NOT CHANGE THIS FUNCTION!
-        This function is implemented here to save time with importing
         @param move: A move.
         """
         i, j, value = move.i, move.j, move.value
@@ -77,20 +77,11 @@ def smaller(i: int, j: int) -> int:
     return i < j
 
 
+# From the coordinates of a square return the region the square is in
 def square2region(square: tuple, m: int, n: int) -> int:
     region_number = square[0] - square[0] % m
     region_number += square[1]//n
     return(region_number)
-
-
-def region2squares(region: int, m: int, n: int) -> int:
-    squares = []
-    for value in range(m*n):
-        value_row = int(region/m)*m + int(value/n)
-        value_column = (region%m)*n + (value%n)
-        squares.append((value_row, value_column))
-
-    return(squares)
 
 
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
@@ -165,7 +156,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
     return best_score, best_move
 
 
-def get_open_numbers_and_empty(board: SudokuBoard):
+def get_open_numbers_and_empty(board: SudokuBoard) -> set:
     """
     For the current board get the open_squares, numbers_left and empty_squares.
     Open_squares: The coordinates of all square that are still empty.
@@ -173,62 +164,40 @@ def get_open_numbers_and_empty(board: SudokuBoard):
     Empty_squares: The number of empty (zero) squares for each row/column/region.
     @param board: The board this should be done on.
     @return: A set with the open_squares list, the numbers_left dictionary and the empty_squares dictionary"""
+    
+    # The variables we will be adding to while looping
     open_squares = []
+    numbers_present = {"rows": [[] for i in range(board.N)], "columns": [[] for i in range(board.N)], "regions": [[] for i in range(board.N)]}
+    empty_squares = {"row": [0]*board.m*board.n, "column": [0]*board.m*board.n, "region": [0]*board.m*board.n,}
 
-    numbers_rows = []
-    empty_rows = []
-
-    numbers_columns = []
-    empty_columns = []
-
-    numbers_regions = []
-    empty_regions = []
-
-    for i in range(board.N):
-        this_numbers_row = []
-        this_empty_row = 0
-        
-        this_numbers_column = []
-        this_empty_column = 0
-        
-        this_numbers_region = []
-        this_empty_region = 0
-
-        region_squares = region2squares(i, board.m, board.n)
-        
-        for j in range(board.N):
-            row_value = board.get(i, j)
-            column_value = board.get(j, i)
+    # Loop over every square
+    for row in range(board.N):        
+        for column in range(board.N):
+            region = square2region((row,column), board.m, board.n)
             
-            region_row, region_column = region_squares[j]
-            region_value = board.get(region_row, region_column)
+            value = board.get(row, column)
+            empty = (value == SudokuBoard.empty)
             
-            this_numbers_row.append(row_value)
-            this_empty_row += row_value == SudokuBoard.empty
+            if empty:
+                open_squares.append((row,column))
+                
+            numbers_present["rows"][row].append(value)
+            empty_squares["row"][row] += empty
             
-            this_numbers_column.append(column_value)
-            this_empty_column += column_value == SudokuBoard.empty
+            numbers_present["columns"][column].append(value)
+            empty_squares["column"][column] += empty
             
-            this_numbers_region.append(region_value)
-            this_empty_region += region_value == SudokuBoard.empty
-            
-            if row_value == SudokuBoard.empty:
-                open_squares.append((i,j))
+            numbers_present["regions"][region].append(value)
+            empty_squares["region"][region] += empty
+    
+    numbers_left = {"rows": [], "columns": [], "regions": []}
+    
+    # Use the numbers that are present to calculate the numbers which are left
+    for group in ["rows", "columns", "regions"]:
+        for i in range(len(numbers_present["rows"])): 
+            numbers_left[group].append({x for x in range(1,board.N+1) if x not in set(filter((0).__ne__, numbers_present[group][i]))})
         
-        numbers_rows.append({x for x in range(1,board.N+1) if x not in set(filter((0).__ne__, this_numbers_row))})
-        empty_rows.append(this_empty_row)
-        
-        numbers_columns.append({x for x in range(1,board.N+1) if x not in set(filter((0).__ne__, this_numbers_column))})
-        empty_columns.append(this_empty_column)
-        
-        numbers_regions.append({x for x in range(1,board.N+1) if x not in set(filter((0).__ne__, this_numbers_region))})
-        empty_regions.append(this_empty_region)
-
-    numbers_left = {"rows": numbers_rows, "columns": numbers_columns, "regions": numbers_regions}
-    empty_squares = {"row": empty_rows, "column": empty_columns, "region": empty_regions}
-
     return open_squares, numbers_left, empty_squares
-
 
 def solve_sudoku(board: SudokuBoard, open_squares: list, numbers_left: dict) -> SudokuBoard:
     '''
