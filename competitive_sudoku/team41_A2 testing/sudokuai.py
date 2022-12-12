@@ -292,7 +292,7 @@ def solve_sudoku(board, open_squares, numbers_left):
 def mapping_point_to_region_number(board, point: tuple) -> int:
     region_number = point[0] - point[0] % board.m
     region_number += point[1]//board.n
-    return region_number
+    return(region_number)
 
 
 def get_open_squares_per_region(board) -> dict:
@@ -315,11 +315,11 @@ SudokuBoard.get_numbers_left = get_numbers_left
 SudokuBoard.get_empty_squares_per_region = get_open_squares_per_region
 
 
-def present_only_once(wow: list, value: int) -> bool:
+def present_only_once(dic: dict, value: int) -> bool:
     '''True if the given value is unique in the given list of sets (or others). False if absent or present >=2 times'''
     check = 0
-    for element in wow:
-        if (value in element):
+    for element in dic:
+        if (value in dic[element]):
             check += 1
             if (check == 2):
                 return(False)
@@ -356,42 +356,51 @@ def get_numbers_left_one_group(board, group: str, group_number: int):
         raise (ValueError("group parameter can only take the values row, column or region"))
 
 
-def fill_in_one_region(board, region_number: int) -> None:
-    '''For each square inside the region, create a set of possible numbers.
-    If a number only is present in one of all the sets, fill the square and recurse
-    @param board: board
-    @param region_number: from 0 up to N times N - 1
-    @return: None'''
-
+def create_sets_for_open_squares(board, region_number: int) -> dict:
+    '''
+    @return: dict of sets if the region you're checking is not yet full. [] otherwise
+    '''
     # Obtain a list of empty squares only of the given region. If it is completely filled, return None to skip
-    open_squares = get_open_squares_per_region(board) # WHY CAN'T I MAKE IT A METHOD OF A BOARD?
+    open_squares = get_open_squares_per_region(board)  # WHY CAN'T I MAKE IT A METHOD OF A BOARD?
     if (region_number not in open_squares):
         print("wow")
-        return(None)
+        return({})
     open_squares = open_squares[region_number]
 
     # For each open square on the board (in one region), save a set of still possible numbers there
-    sets_for_open_squares = []
+    sets_for_open_squares = {}
     for square in open_squares:
         numbers_left_row = get_numbers_left_one_group(board, group="row", group_number=square[0])
         numbers_left_column = get_numbers_left_one_group(board, group="column", group_number=square[1])
         numbers_left_region = get_numbers_left_one_group(board, group="region", group_number=region_number)
         numbers_left = numbers_left_row.intersection(numbers_left_column, numbers_left_region)
-        sets_for_open_squares.append(numbers_left)
+        sets_for_open_squares[square] = numbers_left
+
+    return(sets_for_open_squares)
+
+
+def fill_in_one_region(board, region_number: int, sets_for_open_squares: dict) -> None:
+    '''For each square inside the region, create a set of possible numbers.
+    If a number only is present in one of all the sets, fill the square and recurse
+    @param sets_for_open_squares: list of sets. Each set contains the inputtable numbers for one square
+    @param board: board
+    @param region_number: from 0 up to N times N - 1
+    @return: None'''
 
     # If a number is only present in one of the sets (i.e. can only be inputted in precisely one square of the region):
-    change_made = False
+    changed_squares = []  # A flag whether changes were made. Also we can't delete from dictionary while looping over it
     for number in range(1, board.N+1):
-        for i in range(0, len(open_squares)):
-            square = open_squares[i]
-            if (present_only_once(sets_for_open_squares, number) and (number in sets_for_open_squares[i])):
+        for square in sets_for_open_squares:  # square[row, column]
+            if (present_only_once(sets_for_open_squares, number) and (number in sets_for_open_squares[square])):
                 # Put this number as the value for that square and raise a flag about a change having been made
                 board.put(square[0], square[1], number)
-                change_made = True
+                changed_squares.append(square)
+    for square in changed_squares:
+        del sets_for_open_squares[square]
 
     # If the flag "a change has been made" is on, recurse. Otherwise, terminate:
-    if (change_made):
-        fill_in_one_region(board, region_number)
+    if (changed_squares != []):
+        fill_in_one_region(board, region_number, sets_for_open_squares)
 
 
 from competitive_sudoku.sudoku import load_sudoku
@@ -404,7 +413,8 @@ print(print_board(initial_board))
 #print(get_open_squares(initial_board))
 print(get_open_squares_per_region(initial_board))
 print(get_numbers_left_one_group(initial_board, "region", 3))
-print(fill_in_one_region(initial_board, 3))
+sets_for_open_squares = create_sets_for_open_squares(initial_board, 3)
+print(fill_in_one_region(initial_board, 3, sets_for_open_squares))
+print(type(initial_board))
 print(print_board(initial_board))
-#print(initial_board.get_open_squares())
-#print(mapping_point_to_region_number(initial_board, (5, 8)))
+

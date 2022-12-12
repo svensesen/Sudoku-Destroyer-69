@@ -77,6 +77,22 @@ def smaller(i: int, j: int) -> int:
     return i < j
 
 
+def square2region(square: tuple, m: int, n: int) -> int:
+    region_number = square[0] - square[0] % m
+    region_number += square[1]//n
+    return(region_number)
+
+
+def region2squares(region: int, m: int, n: int) -> int:
+    squares = []
+    for value in range(m*n):
+        value_row = int(region/m)*m + int(value/n)
+        value_column = (region%m)*n + (value%n)
+        squares.append((value_row, value_column))
+
+    return(squares)
+
+
 def minimax(max_depth: int, open_squares: list, empty_squares: dict, m: int, n: int, 
 is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-inf"), beta: int = float("inf")) -> set: 
     """
@@ -112,7 +128,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
         # Calculates how the move would change the score
         row_amount = empty_squares["row"][move[0]]
         column_amount = empty_squares["column"][move[1]]
-        region_amount = empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)]
+        region_amount = empty_squares["region"][square2region(move, m, n)]
 
         # First one is the desire to finish rows, second one is the desire to make rows even/not odd
         amount_finished = (row_amount == 1) + (column_amount == 1) + (region_amount == 1)
@@ -124,7 +140,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
         open_squares.remove(move)
         empty_squares["row"][move[0]] -= 1
         empty_squares["column"][move[1]] -= 1
-        empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] -= 1
+        empty_squares["region"][square2region(move, m, n)] -= 1
     
         # Goes one layer of minimax deeper
         returned_score = minimax(max_depth-1, open_squares, empty_squares, m, n, not is_maximizing_player, new_score, alpha, beta)[0]
@@ -133,7 +149,7 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
         open_squares.append(move)
         empty_squares["row"][move[0]] += 1
         empty_squares["column"][move[1]] += 1
-        empty_squares["region"][int(move[0] / m)*m + int(move[1] / n)] += 1
+        empty_squares["region"][square2region(move, m, n)] += 1
 
         # If the score of this move going deeper is better, this becomes the best move with the best score
         if function(returned_score, best_score):
@@ -177,13 +193,14 @@ def get_open_numbers_and_empty(board: SudokuBoard):
         
         this_numbers_region = []
         this_empty_region = 0
+
+        region_squares = region2squares(i, board.m, board.n)
         
         for j in range(board.N):
             row_value = board.get(i, j)
             column_value = board.get(j, i)
             
-            region_row = int(i/board.m)*board.m + int(j/board.n)
-            region_column = (i%board.m)*board.n + (j%board.n)
+            region_row, region_column = region_squares[j]
             region_value = board.get(region_row, region_column)
             
             this_numbers_row.append(row_value)
@@ -225,7 +242,7 @@ def solve_sudoku(board: SudokuBoard, open_squares: list, numbers_left: dict) -> 
     result = []
     for move in open_squares:
         possibilities = set(numbers_left["rows"][move[0]] & numbers_left["columns"][move[1]] & \
-        numbers_left["regions"][int(move[0] / board.m)*board.m + int(move[1] / board.n)])
+            numbers_left["regions"][int(move[0] / board.m)*board.m + int(move[1] / board.n)])
         if len(possibilities) == 1:
             number = next(iter(possibilities))
 

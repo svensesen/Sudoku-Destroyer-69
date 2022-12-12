@@ -1,3 +1,4 @@
 .ipynub_checkpoints/
 *.pyc
 __pycache__/
+*.csv
