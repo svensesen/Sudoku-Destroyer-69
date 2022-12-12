@@ -8,7 +8,7 @@ from copy import deepcopy
 from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
 
 odds = {} # A global variable for hacky reasons
-last_taboo = None #also global cause I think this works like that
+taboos = [] #also global cause I think this works like that
 
 class SudokuAI(object):
     """
@@ -43,8 +43,7 @@ class SudokuAI(object):
         for i in range(3, game_state.board.N+1):
             odds[i] = int(i%2 == 1)
         global last_taboo
-        last_taboo = (game_state.board.m, game_state.board.n)
-        # Calculate for every increasing depth
+       # Calculate for every increasing depth
         for depth in range(1,9999):
             move = minimax(max_depth = depth, open_squares = open_squares, empty_squares = empty_squares, board = game_state.board)[1]
             number_to_use = solved_board.get(move[0], move[1])
@@ -116,18 +115,46 @@ is_maximizing_player: bool = True, current_score: int = 0, alpha: int = float("-
     best_score = value
     best_move = open_squares[0]
     curr_empty = get_empty_squares(board)
+    #possible_moves = range(1, n*m + 1)
+    
     
     if all( map( lambda x: x == 2, curr_empty['region'] )):
-       	last_taboo[0] = last_taboo[0] + 1
-       	last_taboo[1] = last_taboo[1] + 1
-       	best_move = last_taboo
-       	best_score = 4 #it's better than putting in a move and letting the 
+        solved_board_test = solve_sudoku(deepcopy(board), deepcopy(open_squares), board.get_numbers_left())
+        numleft = get_numbers_left(board)   
+        for square in open_squares:
+            realmove = solved_board_test.get(square[0], square[1])
+            
+            row_left = numleft['row'][square[0]] #the numbers left in that row
+            col_left = numleft['column'][square[1]] #the numbers left in that column
+            regio_left = numleft['region'][square2region(square[0], square[1])]
+            nums_left = [num for num in row_left if num in col_left and num in regio_left]
+            nums_left.pop(nums_left.index(realmove)) if realmove in nums_left else 0
+            
+            if len(nums_left):
+                if nums_left not in taboos:
+                    taboo_move = nums_left[0]
+                    taboos.append(taboo_move)
+                    best_score = 4 #it's better than putting in a move and letting the 
                             #opponent take a region worth 3 points
+            
+       	
     elif all( map( lambda x: x == 2, curr_empty['row'])) or all( map(lambda x: x == 2, curr_empty['column'] )):
-        last_taboo[0] = last_taboo[0] + 1
-       	last_taboo[1] = last_taboo[1] + 1
-       	best_move = last_taboo
-       	best_score = 2.5 #it's better than putting in a move and letting the 
+        solved_board_test = solve_sudoku(deepcopy(board), deepcopy(open_squares), numbers_left)
+        numleft = get_numbers_left(board)   
+        for square in open_squares:
+            realmove = solved_board_test.get(square[0], square[1])
+            
+            row_left = numleft['row'][square[0]] #the numbers left in that row
+            col_left = numleft['column'][square[1]] #the numbers left in that column
+            regio_left = numleft['region'][square2region(square[0], square[1])]
+            nums_left = [num for num in row_left if num in col_left and num in regio_left] 
+            nums_left.pop(nums_left.index(realmove)) if realmove in nums_left else 0
+            
+            if len(nums_left):
+                if nums_left not in taboos:
+                    taboo_move = nums_left[0]
+                    taboos.append(taboo_move)
+                    best_score = 2.5 #it's better than putting in a move and letting the 
                          #opponent take a row/column or potential row/column pair
                          #worth 1 or 2 points, BUT if we get a region it's a net gain
                          #hence 2.5 as it is <2 but >3
