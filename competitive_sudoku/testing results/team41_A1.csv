@@ -1,193 +1,289 @@
-opponent,board,time,starting,result,reason
-random,easy-2x2,0.1,True,1,no move
-random,easy-2x2,0.1,False,1,no move
-random,easy-2x2,0.5,True,1,regular
-random,easy-2x2,0.5,False,1,regular
-random,easy-2x2,1.0,True,1,regular
-random,easy-2x2,1.0,False,1,regular
-random,easy-2x2,5.0,True,1,regular
-random,easy-2x2,5.0,False,1,regular
-random,easy-3x3,0.1,True,-1,no move
-random,easy-3x3,0.1,False,1,no move
-random,easy-3x3,0.5,True,-1,no move
-random,easy-3x3,0.5,False,-1,no move
-random,easy-3x3,1.0,True,1,regular
-random,easy-3x3,1.0,False,1,regular
-random,easy-3x3,5.0,True,1,regular
-random,easy-3x3,5.0,False,1,regular
-random,empty-2x2,0.1,True,1,no move
-random,empty-2x2,0.1,False,1,no move
-random,empty-2x2,0.5,True,1,regular
-random,empty-2x2,0.5,False,1,regular
-random,empty-2x2,1.0,True,1,regular
-random,empty-2x2,1.0,False,1,regular
-random,empty-2x2,5.0,True,0,regular
-random,empty-2x2,5.0,False,-1,regular
-random,empty-2x3,0.1,True,1,no move
-random,empty-2x3,0.1,False,1,no move
-random,empty-2x3,0.5,True,-1,regular
-random,empty-2x3,0.5,False,1,regular
-random,empty-2x3,1.0,True,0,regular
-random,empty-2x3,1.0,False,1,regular
-random,empty-2x3,5.0,True,1,regular
-random,empty-2x3,5.0,False,1,regular
-random,empty-3x3,0.1,True,-1,no move
-random,empty-3x3,0.1,False,1,no move
-random,empty-3x3,0.5,True,-1,no move
-random,empty-3x3,0.5,False,-1,no move
-random,empty-3x3,1.0,True,-1,no move
-random,empty-3x3,1.0,False,-1,no move
-random,empty-3x3,5.0,True,1,regular
-random,empty-3x3,5.0,False,-1,no move
-random,empty-3x4,0.1,True,-1,no move
-random,empty-3x4,0.1,False,-1,no move
-random,empty-3x4,0.5,True,-1,no move
-random,empty-3x4,0.5,False,-1,no move
-random,empty-3x4,1.0,True,-1,no move
-random,empty-3x4,1.0,False,-1,no move
-random,empty-3x4,5.0,True,-1,no move
-random,empty-3x4,5.0,False,-1,no move
-random,empty-4x4,0.1,True,-1,no move
-random,empty-4x4,0.1,False,1,no move
-random,empty-4x4,0.5,True,-1,no move
-random,empty-4x4,0.5,False,-1,no move
-random,empty-4x4,1.0,True,-1,no move
-random,empty-4x4,1.0,False,-1,no move
-random,empty-4x4,5.0,True,-1,no move
-random,empty-4x4,5.0,False,-1,no move
-random,hard-3x3,0.1,True,-1,no move
-random,hard-3x3,0.1,False,1,no move
-random,hard-3x3,0.5,True,-1,no move
-random,hard-3x3,0.5,False,-1,no move
-random,hard-3x3,1.0,True,-1,no move
-random,hard-3x3,1.0,False,-1,no move
-random,hard-3x3,5.0,True,-1,no move
-random,hard-3x3,5.0,False,-1,no move
-random,random-2x3,0.1,True,1,no move
-random,random-2x3,0.1,False,1,no move
-random,random-2x3,0.5,True,1,regular
-random,random-2x3,0.5,False,1,regular
-random,random-2x3,1.0,True,-1,regular
-random,random-2x3,1.0,False,1,regular
-random,random-2x3,5.0,True,1,regular
-random,random-2x3,5.0,False,1,regular
-random,random-3x3,0.1,True,-1,no move
-random,random-3x3,0.1,False,1,no move
-random,random-3x3,0.5,True,1,regular
-random,random-3x3,0.5,False,1,regular
-random,random-3x3,1.0,True,1,regular
-random,random-3x3,1.0,False,1,regular
-random,random-3x3,5.0,True,1,regular
-random,random-3x3,5.0,False,1,regular
-random,random-3x4,0.1,True,-1,no move
-random,random-3x4,0.1,False,1,no move
-random,random-3x4,0.5,True,1,regular
-random,random-3x4,0.5,False,1,regular
-random,random-3x4,1.0,True,1,regular
-random,random-3x4,1.0,False,1,regular
-random,random-3x4,5.0,True,1,regular
-random,random-3x4,5.0,False,1,regular
-random,random-4x4,0.1,True,-1,no move
-random,random-4x4,0.1,False,1,no move
-random,random-4x4,0.5,True,-1,no move
-random,random-4x4,0.5,False,-1,no move
-random,random-4x4,1.0,True,-1,no move
-random,random-4x4,1.0,False,-1,no move
-random,random-4x4,5.0,True,-1,no move
-random,random-4x4,5.0,False,-1,no move
-greedy,easy-2x2,0.1,True,1,no move
-greedy,easy-2x2,0.1,False,1,no move
-greedy,easy-2x2,0.5,True,-1,regular
-greedy,easy-2x2,0.5,False,1,regular
-greedy,easy-2x2,1.0,True,-1,regular
-greedy,easy-2x2,1.0,False,1,regular
-greedy,easy-2x2,5.0,True,-1,regular
-greedy,easy-2x2,5.0,False,1,regular
-greedy,easy-3x3,0.1,True,-1,no move
-greedy,easy-3x3,0.1,False,1,no move
-greedy,easy-3x3,0.5,True,-1,no move
-greedy,easy-3x3,0.5,False,-1,no move
-greedy,easy-3x3,1.0,True,1,regular
-greedy,easy-3x3,1.0,False,1,regular
-greedy,easy-3x3,5.0,True,1,regular
-greedy,easy-3x3,5.0,False,-1,regular
-greedy,empty-2x2,0.1,True,1,no move
-greedy,empty-2x2,0.1,False,1,no move
-greedy,empty-2x2,0.5,True,-1,regular
-greedy,empty-2x2,0.5,False,-1,regular
-greedy,empty-2x2,1.0,True,-1,regular
-greedy,empty-2x2,1.0,False,-1,regular
-greedy,empty-2x2,5.0,True,1,regular
-greedy,empty-2x2,5.0,False,-1,regular
-greedy,empty-2x3,0.1,True,1,no move
-greedy,empty-2x3,0.1,False,1,no move
-greedy,empty-2x3,0.5,True,-1,regular
-greedy,empty-2x3,0.5,False,1,regular
-greedy,empty-2x3,1.0,True,-1,regular
-greedy,empty-2x3,1.0,False,-1,regular
-greedy,empty-2x3,5.0,True,1,regular
-greedy,empty-2x3,5.0,False,-1,regular
-greedy,empty-3x3,0.1,True,-1,no move
-greedy,empty-3x3,0.1,False,1,no move
-greedy,empty-3x3,0.5,True,-1,regular
-greedy,empty-3x3,0.5,False,1,regular
-greedy,empty-3x3,1.0,True,-1,no move
-greedy,empty-3x3,1.0,False,-1,no move
-greedy,empty-3x3,5.0,True,1,regular
-greedy,empty-3x3,5.0,False,-1,regular
-greedy,empty-3x4,0.1,True,-1,no move
-greedy,empty-3x4,0.1,False,1,no move
-greedy,empty-3x4,0.5,True,-1,no move
-greedy,empty-3x4,0.5,False,-1,no move
-greedy,empty-3x4,1.0,True,-1,no move
-greedy,empty-3x4,1.0,False,-1,no move
-greedy,empty-3x4,5.0,True,-1,no move
-greedy,empty-3x4,5.0,False,-1,no move
-greedy,empty-4x4,0.1,True,-1,no move
-greedy,empty-4x4,0.1,False,1,no move
-greedy,empty-4x4,0.5,True,-1,no move
-greedy,empty-4x4,0.5,False,-1,no move
-greedy,empty-4x4,1.0,True,-1,no move
-greedy,empty-4x4,1.0,False,-1,no move
-greedy,empty-4x4,5.0,True,-1,no move
-greedy,empty-4x4,5.0,False,-1,no move
-greedy,hard-3x3,0.1,True,-1,no move
-greedy,hard-3x3,0.1,False,1,no move
-greedy,hard-3x3,0.5,True,-1,no move
-greedy,hard-3x3,0.5,False,-1,no move
-greedy,hard-3x3,1.0,True,-1,no move
-greedy,hard-3x3,1.0,False,-1,no move
-greedy,hard-3x3,5.0,True,-1,no move
-greedy,hard-3x3,5.0,False,-1,no move
-greedy,random-2x3,0.1,True,1,no move
-greedy,random-2x3,0.1,False,1,no move
-greedy,random-2x3,0.5,True,1,regular
-greedy,random-2x3,0.5,False,1,regular
-greedy,random-2x3,1.0,True,-1,regular
-greedy,random-2x3,1.0,False,-1,regular
-greedy,random-2x3,5.0,True,-1,regular
-greedy,random-2x3,5.0,False,1,regular
-greedy,random-3x3,0.1,True,-1,no move
-greedy,random-3x3,0.1,False,1,no move
-greedy,random-3x3,0.5,True,1,regular
-greedy,random-3x3,0.5,False,-1,regular
-greedy,random-3x3,1.0,True,-1,regular
-greedy,random-3x3,1.0,False,1,regular
-greedy,random-3x3,5.0,True,1,regular
-greedy,random-3x3,5.0,False,-1,regular
-greedy,random-3x4,0.1,True,-1,no move
-greedy,random-3x4,0.1,False,1,no move
-greedy,random-3x4,0.5,True,-1,regular
-greedy,random-3x4,0.5,False,-1,regular
-greedy,random-3x4,1.0,True,1,regular
-greedy,random-3x4,1.0,False,-1,regular
-greedy,random-3x4,5.0,True,1,regular
-greedy,random-3x4,5.0,False,1,regular
-greedy,random-4x4,0.1,True,-1,no move
-greedy,random-4x4,0.1,False,1,no move
-greedy,random-4x4,0.5,True,-1,no move
-greedy,random-4x4,0.5,False,-1,no move
-greedy,random-4x4,1.0,True,-1,no move
-greedy,random-4x4,1.0,False,-1,no move
-greedy,random-4x4,5.0,True,-1,no move
-greedy,random-4x4,5.0,False,-1,no move
+,opponent,board,time,starting,result,reason
+0,random,easy-2x2,0.1,True,1,regular
+1,random,easy-2x2,0.1,False,1,regular
+2,random,easy-2x2,0.5,True,1,regular
+3,random,easy-2x2,0.5,False,1,regular
+4,random,easy-2x2,1.0,True,1,regular
+5,random,easy-2x2,1.0,False,1,regular
+6,random,easy-2x2,5.0,True,1,regular
+7,random,easy-2x2,5.0,False,1,regular
+8,random,easy-3x3,0.1,True,1,regular
+9,random,easy-3x3,0.1,False,1,regular
+10,random,easy-3x3,0.5,True,1,regular
+11,random,easy-3x3,0.5,False,1,regular
+12,random,easy-3x3,1.0,True,1,regular
+13,random,easy-3x3,1.0,False,1,regular
+14,random,easy-3x3,5.0,True,1,regular
+15,random,easy-3x3,5.0,False,1,regular
+16,random,empty-2x2,0.1,True,1,regular
+17,random,empty-2x2,0.1,False,1,regular
+18,random,empty-2x2,0.5,True,1,regular
+19,random,empty-2x2,0.5,False,1,regular
+20,random,empty-2x2,1.0,True,1,regular
+21,random,empty-2x2,1.0,False,1,regular
+22,random,empty-2x2,5.0,True,1,regular
+23,random,empty-2x2,5.0,False,1,regular
+24,random,empty-2x3,0.1,True,1,regular
+25,random,empty-2x3,0.1,False,1,regular
+26,random,empty-2x3,0.5,True,1,regular
+27,random,empty-2x3,0.5,False,1,regular
+28,random,empty-2x3,1.0,True,1,regular
+29,random,empty-2x3,1.0,False,1,regular
+30,random,empty-2x3,5.0,True,1,regular
+31,random,empty-2x3,5.0,False,1,regular
+32,random,empty-3x3,0.1,True,1,regular
+33,random,empty-3x3,0.1,False,1,regular
+34,random,empty-3x3,0.5,True,1,regular
+35,random,empty-3x3,0.5,False,1,regular
+36,random,empty-3x3,1.0,True,1,regular
+37,random,empty-3x3,1.0,False,1,regular
+38,random,empty-3x3,5.0,True,1,regular
+39,random,empty-3x3,5.0,False,1,regular
+40,random,empty-3x4,0.1,True,1,regular
+41,random,empty-3x4,0.1,False,1,regular
+42,random,empty-3x4,0.5,True,1,regular
+43,random,empty-3x4,0.5,False,1,regular
+44,random,empty-3x4,1.0,True,1,regular
+45,random,empty-3x4,1.0,False,1,regular
+46,random,empty-3x4,5.0,True,1,regular
+47,random,empty-3x4,5.0,False,1,regular
+48,random,empty-4x4,0.1,True,1,regular
+49,random,empty-4x4,0.1,False,1,regular
+50,random,empty-4x4,0.5,True,1,regular
+51,random,empty-4x4,0.5,False,1,regular
+52,random,empty-4x4,1.0,True,1,regular
+53,random,empty-4x4,1.0,False,1,regular
+54,random,empty-4x4,5.0,True,1,regular
+55,random,empty-4x4,5.0,False,1,regular
+56,random,hard-3x3,0.1,True,1,regular
+57,random,hard-3x3,0.1,False,1,regular
+58,random,hard-3x3,0.5,True,1,regular
+59,random,hard-3x3,0.5,False,1,regular
+60,random,hard-3x3,1.0,True,1,regular
+61,random,hard-3x3,1.0,False,1,regular
+62,random,hard-3x3,5.0,True,1,regular
+63,random,hard-3x3,5.0,False,1,regular
+64,random,random-2x3,0.1,True,1,regular
+65,random,random-2x3,0.1,False,1,regular
+66,random,random-2x3,0.5,True,1,regular
+67,random,random-2x3,0.5,False,1,regular
+68,random,random-2x3,1.0,True,1,regular
+69,random,random-2x3,1.0,False,1,regular
+70,random,random-2x3,5.0,True,1,regular
+71,random,random-2x3,5.0,False,1,regular
+72,random,random-3x3,0.1,True,1,regular
+73,random,random-3x3,0.1,False,1,regular
+74,random,random-3x3,0.5,True,1,regular
+75,random,random-3x3,0.5,False,1,regular
+76,random,random-3x3,1.0,True,1,regular
+77,random,random-3x3,1.0,False,1,regular
+78,random,random-3x3,5.0,True,1,regular
+79,random,random-3x3,5.0,False,1,regular
+80,random,random-3x4,0.1,True,1,regular
+81,random,random-3x4,0.1,False,1,regular
+82,random,random-3x4,0.5,True,1,regular
+83,random,random-3x4,0.5,False,1,regular
+84,random,random-3x4,1.0,True,1,regular
+85,random,random-3x4,1.0,False,1,regular
+86,random,random-3x4,5.0,True,1,regular
+87,random,random-3x4,5.0,False,1,regular
+88,random,random-4x4,0.1,True,1,regular
+89,random,random-4x4,0.1,False,1,regular
+90,random,random-4x4,0.5,True,1,regular
+91,random,random-4x4,0.5,False,1,regular
+92,random,random-4x4,1.0,True,1,regular
+93,random,random-4x4,1.0,False,1,regular
+94,random,random-4x4,5.0,True,1,regular
+95,random,random-4x4,5.0,False,1,regular
+96,team41_A2_testi,easy-2x2,0.1,True,1,regular
+97,team41_A2_testi,easy-2x2,0.1,False,1,regular
+98,team41_A2_testi,easy-2x2,0.5,True,1,regular
+99,team41_A2_testi,easy-2x2,0.5,False,1,regular
+100,team41_A2_testi,easy-2x2,1.0,True,1,regular
+101,team41_A2_testi,easy-2x2,1.0,False,1,regular
+102,team41_A2_testi,easy-2x2,5.0,True,1,regular
+103,team41_A2_testi,easy-2x2,5.0,False,1,regular
+104,team41_A2_testi,easy-3x3,0.1,True,1,regular
+105,team41_A2_testi,easy-3x3,0.1,False,1,regular
+106,team41_A2_testi,easy-3x3,0.5,True,1,regular
+107,team41_A2_testi,easy-3x3,0.5,False,1,regular
+108,team41_A2_testi,easy-3x3,1.0,True,1,regular
+109,team41_A2_testi,easy-3x3,1.0,False,1,regular
+110,team41_A2_testi,easy-3x3,5.0,True,1,regular
+111,team41_A2_testi,easy-3x3,5.0,False,1,regular
+112,team41_A2_testi,empty-2x2,0.1,True,1,regular
+113,team41_A2_testi,empty-2x2,0.1,False,1,regular
+114,team41_A2_testi,empty-2x2,0.5,True,1,regular
+115,team41_A2_testi,empty-2x2,0.5,False,1,regular
+116,team41_A2_testi,empty-2x2,1.0,True,1,regular
+117,team41_A2_testi,empty-2x2,1.0,False,1,regular
+118,team41_A2_testi,empty-2x2,5.0,True,1,regular
+119,team41_A2_testi,empty-2x2,5.0,False,1,regular
+120,team41_A2_testi,empty-2x3,0.1,True,1,regular
+121,team41_A2_testi,empty-2x3,0.1,False,1,regular
+122,team41_A2_testi,empty-2x3,0.5,True,1,regular
+123,team41_A2_testi,empty-2x3,0.5,False,1,regular
+124,team41_A2_testi,empty-2x3,1.0,True,1,regular
+125,team41_A2_testi,empty-2x3,1.0,False,1,regular
+126,team41_A2_testi,empty-2x3,5.0,True,1,regular
+127,team41_A2_testi,empty-2x3,5.0,False,1,regular
+128,team41_A2_testi,empty-3x3,0.1,True,1,regular
+129,team41_A2_testi,empty-3x3,0.1,False,1,regular
+130,team41_A2_testi,empty-3x3,0.5,True,1,regular
+131,team41_A2_testi,empty-3x3,0.5,False,1,regular
+132,team41_A2_testi,empty-3x3,1.0,True,1,regular
+133,team41_A2_testi,empty-3x3,1.0,False,1,regular
+134,team41_A2_testi,empty-3x3,5.0,True,1,regular
+135,team41_A2_testi,empty-3x3,5.0,False,1,regular
+136,team41_A2_testi,empty-3x4,0.1,True,1,regular
+137,team41_A2_testi,empty-3x4,0.1,False,1,regular
+138,team41_A2_testi,empty-3x4,0.5,True,1,regular
+139,team41_A2_testi,empty-3x4,0.5,False,1,regular
+140,team41_A2_testi,empty-3x4,1.0,True,1,regular
+141,team41_A2_testi,empty-3x4,1.0,False,1,regular
+142,team41_A2_testi,empty-3x4,5.0,True,1,regular
+143,team41_A2_testi,empty-3x4,5.0,False,1,regular
+144,team41_A2_testi,empty-4x4,0.1,True,1,regular
+145,team41_A2_testi,empty-4x4,0.1,False,1,regular
+146,team41_A2_testi,empty-4x4,0.5,True,1,regular
+147,team41_A2_testi,empty-4x4,0.5,False,1,regular
+148,team41_A2_testi,empty-4x4,1.0,True,1,regular
+149,team41_A2_testi,empty-4x4,1.0,False,1,regular
+150,team41_A2_testi,empty-4x4,5.0,True,1,regular
+151,team41_A2_testi,empty-4x4,5.0,False,1,regular
+152,team41_A2_testi,hard-3x3,0.1,True,1,regular
+153,team41_A2_testi,hard-3x3,0.1,False,1,regular
+154,team41_A2_testi,hard-3x3,0.5,True,1,regular
+155,team41_A2_testi,hard-3x3,0.5,False,1,regular
+156,team41_A2_testi,hard-3x3,1.0,True,1,regular
+157,team41_A2_testi,hard-3x3,1.0,False,1,regular
+158,team41_A2_testi,hard-3x3,5.0,True,1,regular
+159,team41_A2_testi,hard-3x3,5.0,False,1,regular
+160,team41_A2_testi,random-2x3,0.1,True,1,regular
+161,team41_A2_testi,random-2x3,0.1,False,1,regular
+162,team41_A2_testi,random-2x3,0.5,True,1,regular
+163,team41_A2_testi,random-2x3,0.5,False,1,regular
+164,team41_A2_testi,random-2x3,1.0,True,1,regular
+165,team41_A2_testi,random-2x3,1.0,False,1,regular
+166,team41_A2_testi,random-2x3,5.0,True,1,regular
+167,team41_A2_testi,random-2x3,5.0,False,1,regular
+168,team41_A2_testi,random-3x3,0.1,True,1,regular
+169,team41_A2_testi,random-3x3,0.1,False,1,regular
+170,team41_A2_testi,random-3x3,0.5,True,1,regular
+171,team41_A2_testi,random-3x3,0.5,False,1,regular
+172,team41_A2_testi,random-3x3,1.0,True,1,regular
+173,team41_A2_testi,random-3x3,1.0,False,1,regular
+174,team41_A2_testi,random-3x3,5.0,True,1,regular
+175,team41_A2_testi,random-3x3,5.0,False,1,regular
+176,team41_A2_testi,random-3x4,0.1,True,1,regular
+177,team41_A2_testi,random-3x4,0.1,False,1,regular
+178,team41_A2_testi,random-3x4,0.5,True,1,regular
+179,team41_A2_testi,random-3x4,0.5,False,1,regular
+180,team41_A2_testi,random-3x4,1.0,True,1,regular
+181,team41_A2_testi,random-3x4,1.0,False,1,regular
+182,team41_A2_testi,random-3x4,5.0,True,1,regular
+183,team41_A2_testi,random-3x4,5.0,False,1,regular
+184,team41_A2_testi,random-4x4,0.1,True,1,regular
+185,team41_A2_testi,random-4x4,0.1,False,1,regular
+186,team41_A2_testi,random-4x4,0.5,True,1,regular
+187,team41_A2_testi,random-4x4,0.5,False,1,regular
+188,team41_A2_testi,random-4x4,1.0,True,1,regular
+189,team41_A2_testi,random-4x4,1.0,False,1,regular
+190,team41_A2_testi,random-4x4,5.0,True,1,regular
+191,team41_A2_testi,random-4x4,5.0,False,1,regular
+192,greedy,easy-2x2,0.1,True,1,regular
+193,greedy,easy-2x2,0.1,False,1,regular
+194,greedy,easy-2x2,0.5,True,1,regular
+195,greedy,easy-2x2,0.5,False,1,regular
+196,greedy,easy-2x2,1.0,True,1,regular
+197,greedy,easy-2x2,1.0,False,1,regular
+198,greedy,easy-2x2,5.0,True,1,regular
+199,greedy,easy-2x2,5.0,False,1,regular
+200,greedy,easy-3x3,0.1,True,1,regular
+201,greedy,easy-3x3,0.1,False,1,regular
+202,greedy,easy-3x3,0.5,True,1,regular
+203,greedy,easy-3x3,0.5,False,1,regular
+204,greedy,easy-3x3,1.0,True,1,regular
+205,greedy,easy-3x3,1.0,False,1,regular
+206,greedy,easy-3x3,5.0,True,1,regular
+207,greedy,easy-3x3,5.0,False,1,regular
+208,greedy,empty-2x2,0.1,True,1,regular
+209,greedy,empty-2x2,0.1,False,1,regular
+210,greedy,empty-2x2,0.5,True,1,regular
+211,greedy,empty-2x2,0.5,False,1,regular
+212,greedy,empty-2x2,1.0,True,1,regular
+213,greedy,empty-2x2,1.0,False,1,regular
+214,greedy,empty-2x2,5.0,True,1,regular
+215,greedy,empty-2x2,5.0,False,1,regular
+216,greedy,empty-2x3,0.1,True,1,regular
+217,greedy,empty-2x3,0.1,False,1,regular
+218,greedy,empty-2x3,0.5,True,1,regular
+219,greedy,empty-2x3,0.5,False,1,regular
+220,greedy,empty-2x3,1.0,True,1,regular
+221,greedy,empty-2x3,1.0,False,1,regular
+222,greedy,empty-2x3,5.0,True,1,regular
+223,greedy,empty-2x3,5.0,False,1,regular
+224,greedy,empty-3x3,0.1,True,1,regular
+225,greedy,empty-3x3,0.1,False,1,regular
+226,greedy,empty-3x3,0.5,True,1,regular
+227,greedy,empty-3x3,0.5,False,1,regular
+228,greedy,empty-3x3,1.0,True,1,regular
+229,greedy,empty-3x3,1.0,False,1,regular
+230,greedy,empty-3x3,5.0,True,1,regular
+231,greedy,empty-3x3,5.0,False,1,regular
+232,greedy,empty-3x4,0.1,True,1,regular
+233,greedy,empty-3x4,0.1,False,1,regular
+234,greedy,empty-3x4,0.5,True,1,regular
+235,greedy,empty-3x4,0.5,False,1,regular
+236,greedy,empty-3x4,1.0,True,1,regular
+237,greedy,empty-3x4,1.0,False,1,regular
+238,greedy,empty-3x4,5.0,True,1,regular
+239,greedy,empty-3x4,5.0,False,1,regular
+240,greedy,empty-4x4,0.1,True,1,regular
+241,greedy,empty-4x4,0.1,False,1,regular
+242,greedy,empty-4x4,0.5,True,1,regular
+243,greedy,empty-4x4,0.5,False,1,regular
+244,greedy,empty-4x4,1.0,True,1,regular
+245,greedy,empty-4x4,1.0,False,1,regular
+246,greedy,empty-4x4,5.0,True,1,regular
+247,greedy,empty-4x4,5.0,False,1,regular
+248,greedy,hard-3x3,0.1,True,1,regular
+249,greedy,hard-3x3,0.1,False,1,regular
+250,greedy,hard-3x3,0.5,True,1,regular
+251,greedy,hard-3x3,0.5,False,1,regular
+252,greedy,hard-3x3,1.0,True,1,regular
+253,greedy,hard-3x3,1.0,False,1,regular
+254,greedy,hard-3x3,5.0,True,1,regular
+255,greedy,hard-3x3,5.0,False,1,regular
+256,greedy,random-2x3,0.1,True,1,regular
+257,greedy,random-2x3,0.1,False,1,regular
+258,greedy,random-2x3,0.5,True,1,regular
+259,greedy,random-2x3,0.5,False,1,regular
+260,greedy,random-2x3,1.0,True,1,regular
+261,greedy,random-2x3,1.0,False,1,regular
+262,greedy,random-2x3,5.0,True,1,regular
+263,greedy,random-2x3,5.0,False,1,regular
+264,greedy,random-3x3,0.1,True,1,regular
+265,greedy,random-3x3,0.1,False,1,regular
+266,greedy,random-3x3,0.5,True,1,regular
+267,greedy,random-3x3,0.5,False,1,regular
+268,greedy,random-3x3,1.0,True,1,regular
+269,greedy,random-3x3,1.0,False,1,regular
+270,greedy,random-3x3,5.0,True,1,regular
+271,greedy,random-3x3,5.0,False,1,regular
+272,greedy,random-3x4,0.1,True,1,regular
+273,greedy,random-3x4,0.1,False,1,regular
+274,greedy,random-3x4,0.5,True,1,regular
+275,greedy,random-3x4,0.5,False,1,regular
+276,greedy,random-3x4,1.0,True,1,regular
+277,greedy,random-3x4,1.0,False,1,regular
+278,greedy,random-3x4,5.0,True,1,regular
+279,greedy,random-3x4,5.0,False,1,regular
+280,greedy,random-4x4,0.1,True,1,regular
+281,greedy,random-4x4,0.1,False,1,regular
+282,greedy,random-4x4,0.5,True,1,regular
+283,greedy,random-4x4,0.5,False,1,regular
+284,greedy,random-4x4,1.0,True,1,regular
+285,greedy,random-4x4,1.0,False,1,regular
+286,greedy,random-4x4,5.0,True,1,regular
+287,greedy,random-4x4,5.0,False,1,regular

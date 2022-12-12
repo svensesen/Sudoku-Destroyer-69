@@ -1,0 +1,11 @@
+,opponent,board,time,starting,result,reason
+0,random,easy-2x2,0.1,True,1,regular
+1,random,easy-2x2,0.1,False,1,regular
+2,random,easy-2x2,0.5,True,1,regular
+3,random,easy-2x2,0.5,False,1,regular
+4,random,easy-2x2,1.0,True,1,regular
+5,random,easy-2x2,1.0,False,1,regular
+6,random,easy-2x2,5.0,True,1,regular
+7,random,easy-2x2,5.0,False,1,regular
+8,random,easy-3x3,0.1,True,1,regular
+9,random,easy-3x3,0.1,False,1,regular
