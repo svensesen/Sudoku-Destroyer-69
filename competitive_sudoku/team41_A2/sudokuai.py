@@ -207,31 +207,93 @@ def solve_sudoku(board: SudokuBoard, open_squares: list, numbers_left: dict) -> 
     @param empty_squares: A dictionary containing the missing numbers for each group.
     @return: A filled board.
     '''
-    # Finds all squares where only one number is possible
-    result = []
+
+    move_possibilities = {} # For each move keep track of the possibilities of that move
+    result = [] # All squares where only one number is possible
     for move in open_squares:
         possibilities = set(numbers_left["rows"][move[0]] & numbers_left["columns"][move[1]] & \
             numbers_left["regions"][int(move[0] / board.m)*board.m + int(move[1] / board.n)])
+        
+        # If this is the case we mark this move to be filled in
         if len(possibilities) == 1:
             number = next(iter(possibilities))
+            result.append([move,number]) # Note to past self, do not forget to add this line or you'll brick A1
 
         # If this is the case, a previous guess was wrong
         elif len(possibilities) == 0:
             return -1
+
+        move_possibilities[move] = possibilities
 
     # If squares can be filled in, do so and start back at the beginning
     if result != []:
         for i in result:
             board.put(i[0][0], i[0][1], i[1])
             open_squares.remove(i[0])
-            numbers_left["rows"][i[0][0]].remove(i[1])
-            numbers_left["columns"][i[0][1]].remove(i[1])
-            numbers_left["regions"][int(i[0][0] / board.m)*board.m + int(i[0][1] / board.n)].remove(i[1])
+            
+            # If this try fails we have made an incorrect guess before this
+            try:
+                numbers_left["rows"][i[0][0]].remove(i[1])
+                numbers_left["columns"][i[0][1]].remove(i[1])
+                numbers_left["regions"][int(i[0][0] / board.m)*board.m + int(i[0][1] / board.n)].remove(i[1])
+            except:
+                return -1
             
         return solve_sudoku(board, open_squares, numbers_left)
     
-    # If no squares can be filled in, keep making a guess until you hit a correct one
-    elif board.empty in board.squares:
+    # Inspect for each square if for one of its groups it is the only square were a number can go
+    else:
+        success = False
+
+        # For each row gets a list of all possibilities for all squares combined
+        row_possibilities = {} 
+        for move in move_possibilities:
+            if move[0] in row_possibilities:
+                row_possibilities[move[0]] += list(possibilities)
+        
+            else:
+                row_possibilities[move[0]] = list(possibilities)
+
+        # For each column gets a list of all possibilities for all squares combined
+        column_possibilities = {} 
+        for move in move_possibilities:
+            if move[1] in column_possibilities:
+                column_possibilities[move[1]] += list(possibilities)
+        
+            else:
+                column_possibilities[move[1]] = list(possibilities)
+
+        # For each region gets a list of all possibilities for all squares combined
+        region_possibilities = {} 
+        for move in move_possibilities:
+            if square2region(move, board.m, board.n) in region_possibilities:
+                region_possibilities[square2region(move, board.m, board.n)] += list(possibilities)
+        
+            else:
+                region_possibilities[square2region(move, board.m, board.n)] = list(possibilities)
+
+        # For each open square check for each number if it is only once in the possibilities for all squares
+        for move in move_possibilities:
+            for number in move_possibilities[move]:
+                if (row_possibilities[move[0]].count(number) == 1) or (column_possibilities[move[1]].count(number) == 1) \
+                    or (region_possibilities[square2region(move, board.m, board.n)].count(number) == 1):
+                    board.put(move[0], move[1], number)
+                    open_squares.remove(move)
+                    
+                    # If this try fails we have made an incorrect guess before this
+                    try:
+                        numbers_left["rows"][i[0][0]].remove(i[1])
+                        numbers_left["columns"][i[0][1]].remove(i[1])
+                        numbers_left["regions"][int(i[0][0] / board.m)*board.m + int(i[0][1] / board.n)].remove(i[1])
+                    except:
+                        return -1
+        
+        # If a change was made we can go back to the start
+        if success:
+            return solve_sudoku(board, open_squares, numbers_left)
+    
+    # If no squares can be filled in, keep making a guesses until you hit a correct one
+    if board.empty in board.squares:
         iterator = iter(possibilities)
         for number in iterator:
             new_board = deepcopy(board)
