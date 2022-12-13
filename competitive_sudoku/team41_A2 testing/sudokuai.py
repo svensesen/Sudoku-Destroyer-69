@@ -155,6 +155,14 @@ def get_open_squares(board: SudokuBoard) -> list:
     return open_squares
 
 
+def get_open_squares_2(board) -> list:
+    ''''''
+    N_squared = board.N * board.N
+    N = board.N
+    open_squares = [(i//N, i % N) for i in range(0, N_squared) if board.get(i//N, i % N) == SudokuBoard.empty]
+    return(open_squares)
+
+
 def get_empty_squares(board: SudokuBoard) -> dict:
     """
     For the current board, gets the number of empty squares for each row/column/region.
@@ -418,22 +426,36 @@ def fill_in_all_regions(board) -> None:
         fill_in_all_regions(board)
 
 
+def game_phase(board) -> str:
+    '''Returns whether we are in the early game, midgame or endgame now.
+    Since a board object does not hold whether it was random/empty at the start, we can only use the current state
+    @param board: board
+    @return: one of ["early", "mid", "late"]'''
+    number_empty = sum(get_empty_squares(board)["row"])
+    if (number_empty > 60):
+        return("early")
+    elif (number_empty > 10):
+        return("mid")
+    else:
+        return("late")
+
+
 from competitive_sudoku.sudoku import load_sudoku
 
 ai = SudokuAI()
 initial_board = load_sudoku("boards\\random-3x3.txt")
-game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
-#ai.compute_best_move(game_state, 6)
-print(print_board(initial_board))
-#print(get_open_squares(initial_board))
-print(get_open_squares_per_region(initial_board))
-print(get_numbers_left_one_group(initial_board, "region", 0))
-#print(fill_in_one_region(initial_board, 3, sets_for_open_squares))
-print(sum(get_empty_squares(initial_board)["row"]))  # check if that works
-t0 = time()
-print(fill_in_all_regions(initial_board))
-t1 = time()
-print(t1 - t0)
-print(sum(get_empty_squares(initial_board)["row"]))  # check if that works
-print(print_board(initial_board))
+# game_state = GameState(initial_board, deepcopy(initial_board), [], [], [0, 0])
+# #ai.compute_best_move(game_state, 6)
+# print(print_board(initial_board))
+# #print(get_open_squares(initial_board))
+# print(get_open_squares_per_region(initial_board))
+# print(get_numbers_left_one_group(initial_board, "region", 0))
+# #print(fill_in_one_region(initial_board, 3, sets_for_open_squares))
+# print(sum(get_empty_squares(initial_board)["row"]))  # check if that works
+# t0 = time()
+# print(fill_in_all_regions(initial_board))
+# t1 = time()
+# print(t1 - t0)
+# print(sum(get_empty_squares(initial_board)["row"]))  # check if that works
+# print(print_board(initial_board))
 
