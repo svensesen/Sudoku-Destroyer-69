@@ -5,10 +5,10 @@ from random import choice, shuffle
 from numpy import argmax
 from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
 
-global_C = 2
+global_C = 0
 global_loops_till_send = 100
 global_total = False
-global_selection = "max" #max or robust
+global_selection = "max"
 
 class SudokuAI(object):
     """
