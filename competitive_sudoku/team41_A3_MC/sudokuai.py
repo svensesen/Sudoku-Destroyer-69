@@ -84,7 +84,6 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         move = root.possible_moves[move_index]
         number_to_use = solved_board.get(move[0], move[1])
         self.propose_move(Move(move[0], move[1], number_to_use))
-        print(f"Used time: {time()-start_time}")
 
 
     def quick_propose_valid_move(self, game_state, possible_moves: list, numbers_left: dict) -> None:
