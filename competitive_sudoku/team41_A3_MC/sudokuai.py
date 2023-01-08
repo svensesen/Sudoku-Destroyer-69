@@ -2,24 +2,26 @@ from copy import deepcopy
 from collections import defaultdict
 from math import log, sqrt
 from random import choice, shuffle
-from numpy import argmax
-from competitive_sudoku.sudoku import GameState, SudokuBoard, Move, TabooMove 
+from time import time
+
+from competitive_sudoku.sudoku import Move
+import competitive_sudoku.sudokuai
+
 
 global_C = 2
-global_loops_till_send = 100
 global_total = False
 global_selection = "max" #max or robust
 
-class SudokuAI(object):
+
+class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
     """
     Sudoku AI that computes a move for a given sudoku configuration.
     """
 
     def __init__(self):
-        self.best_move = [0, 0, 0]
-        self.lock = None
+        super().__init__()
     
-    def compute_best_move(self, game_state: GameState) -> None:
+    def compute_best_move(self, game_state) -> None:
         """
         The AI calculates the best move for the given game state.
         It continuously updates the best_move value until forced to stop.
@@ -27,6 +29,7 @@ class SudokuAI(object):
         Then it repeatedly uses minimax to determine the best square, at increasing depths.
         @param game_state: The starting game state.
         """
+        start_time = time()
 
         # Create some global variables so we do not have to pass these around
         global global_m, global_n, global_N
@@ -39,6 +42,13 @@ class SudokuAI(object):
 
         # Quickly propose a valid move to have something to present
         self.quick_propose_valid_move(game_state, possible_moves, numbers_left)
+
+        # If this is the first turn we are in control, we figure out and save the alloted time
+        available_time = self.load()
+        if available_time == None:
+            while True:
+                cur_time = time()-start_time
+                self.save(cur_time)
         
         # Gives a solution of the board
         solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(possible_moves), numbers_left)
@@ -50,64 +60,49 @@ class SudokuAI(object):
         # The root of the MC_tree
         root = Node(None, 1, possible_moves, empty_squares, score, 0)
 
-        # We will loop this for the rest of this move
-        while True:
-
-            # Do x loops of the MC_tree algorithm
-            for i in range(global_loops_till_send):
-                one_mc_loop(root)
+        stop_time = available_time*0.95 - 0.001
+        # We will loop this until we get low on time
+        while time()-start_time < stop_time:
+            one_mc_loop(root)
             
-            # Determine the best child at this point
-            max_value = -float('inf')
-            move_index = None
-            if global_selection == "max":
-                for child in root.children:
-                    if child.q/child.n > max_value:
-                        max_value = child.q/child.n
-                        move_index = child.index
-            
-            elif global_selection == "robust":
-                for child in root.children:
-                    if child.n > max_value:
-                        max_value = child.q/child.n
-                        move_index = child.index
+        # Determine the best child at this point
+        max_value = -float('inf')
+        move_index = None
+        if global_selection == "max":
+            for child in root.children:
+                if child.q/child.n > max_value:
+                    max_value = child.q/child.n
+                    move_index = child.index
+        
+        elif global_selection == "robust":
+            for child in root.children:
+                if child.n > max_value:
+                    max_value = child.q/child.n
+                    move_index = child.index
 
-            # Propose the current best move
-            move = root.possible_moves[move_index]
-            number_to_use = solved_board.get(move[0], move[1])
-            self.propose_move(Move(move[0], move[1], number_to_use))
+        # Propose the current best move
+        move = root.possible_moves[move_index]
+        number_to_use = solved_board.get(move[0], move[1])
+        self.propose_move(Move(move[0], move[1], number_to_use))
+        print(f"Used time: {time()-start_time}")
 
-    def propose_move(self, move: Move) -> None:
-        """
-        Note: This function is implemented here to save time with importing.
-        Updates the best move that has been found so far.
-        N.B. DO NOT CHANGE THIS FUNCTION!
-        @param move: A move.
-        """
 
-        i, j, value = move.i, move.j, move.value
-        if self.lock:
-            self.lock.acquire()
-        self.best_move[0] = i
-        self.best_move[1] = j
-        self.best_move[2] = value
-        if self.lock:
-            self.lock.release()
-    
-    def quick_propose_valid_move(self, game_state: GameState, possible_moves: list, numbers_left: dict) -> None:
+    def quick_propose_valid_move(self, game_state, possible_moves: list, numbers_left: dict) -> None:
         """
-        Proposes a move which is neither illegal, nor a taboo move, though it might be a bomb move.
+        Proposes a random move which is neither illegal, nor a taboo move, though it might be a bomb move.
         @param game_state: The game state for which this is happening.
         @param possible_moves: A list of coordinates for all empty squares (result of the get_possible_moves function).
         @param numbers_left: A dictionary with for each group which number are not in that group (result of the get_numbers_left function).
         """
 
-        move = possible_moves[0]
+        move = choice(possible_moves)
         numbers = set(numbers_left["rows"][move[0]] & numbers_left["columns"][move[1]] & numbers_left["regions"][int(move[0] \
             / game_state.board.m)*game_state.board.m + int(move[1] / game_state.board.n)])
         moves = [Move(move[0], move[1], number) for number in numbers]
-        non_taboo_moves = [move for move in set(moves) if move not in set(game_state.taboo_moves)]
-        self.propose_move(non_taboo_moves[0])
+        for move in moves:
+            if move not in game_state.taboo_moves:
+                self.propose_move(move)
+                break
 
 def one_mc_loop(root) -> None:
     """
@@ -161,7 +156,7 @@ class Node():
         """
         Returns the child with the highest UCT.
         """
-        return self.children[argmax(self.children_UCT)]
+        return self.children[max(range(len(self.children_UCT)), key=self.children_UCT.__getitem__)]
     
     def add_children(self):
         """
@@ -208,7 +203,7 @@ class Node():
     def send_added_q(self, added_q: int) -> None:
         """
         Updates the n and q in this node and sends the function upwards the tree.
-        @param added_q: The amount that should be added to q (influenced by 'starting'.
+        @param added_q: The amount that should be added to q (influenced by 'starting').
         """
         self.n += 1
         self.q += self.starting*added_q
@@ -262,7 +257,7 @@ def square2region(square: tuple) -> int:
     return(region_number)
 
 
-def get_possible_numbers_and_empty(board: SudokuBoard) -> set:
+def get_possible_numbers_and_empty(board) -> set:
     """
     For the current board get the possible_moves, numbers_left and empty_squares.
     Possible_moves: The coordinates of all square that are still empty.
@@ -284,7 +279,7 @@ def get_possible_numbers_and_empty(board: SudokuBoard) -> set:
             region = square2region((row,column))
             
             value = board.get(row, column)
-            empty = (value == SudokuBoard.empty)
+            empty = (value == 0)
             
             if empty:
                 possible_moves.append((row,column))
@@ -308,7 +303,7 @@ def get_possible_numbers_and_empty(board: SudokuBoard) -> set:
     return possible_moves, numbers_left, empty_squares
 
 
-def solve_sudoku(board: SudokuBoard, possible_moves: list, numbers_left: dict) -> SudokuBoard:
+def solve_sudoku(board, possible_moves: list, numbers_left: dict):
     """
     Iteratively gives a solution to the given sudoku.
     First, fills in any squares where only one number is possible, then randomly guesses.
@@ -416,11 +411,3 @@ def solve_sudoku(board: SudokuBoard, possible_moves: list, numbers_left: dict) -
     
     # If the board is full, return
     return board
-
-
-# Makes moves hashable
-def move_hash(self):
-    return hash((self.i, self.j, self.value))
-
-Move.__hash__ = move_hash
-TabooMove.__hash__ = move_hash

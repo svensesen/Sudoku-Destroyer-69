@@ -4,3 +4,7 @@ __pycache__/
 *.csv
 *.png
 Saves/
+*.pkl
+
+*copy/
+*copy 2/
