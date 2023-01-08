@@ -1,0 +1,7 @@
+4x4 empty board
+second player
+second setup (0, False, robust)
+
+4x4 empty board
+first player
+fiftheenth setup (10, True, max)
