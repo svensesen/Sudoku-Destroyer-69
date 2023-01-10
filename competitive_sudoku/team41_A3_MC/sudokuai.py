@@ -1,8 +1,8 @@
 from copy import deepcopy
-from collections import defaultdict
 from math import log, sqrt
 from random import choice, shuffle
 from time import time
+from itertools import product
 
 from competitive_sudoku.sudoku import Move
 import competitive_sudoku.sudokuai
@@ -51,7 +51,7 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
                 self.save(cur_time)
         
         # Gives a solution of the board
-        solved_board = solve_sudoku(deepcopy(game_state.board), deepcopy(possible_moves), numbers_left)
+        solved_board = solve_sudoku(deepcopy(game_state.board))
 
         # Set the starting score of the MC_tree
         if not global_total: score = game_state.scores[0] - game_state.scores[1]
@@ -77,7 +77,7 @@ class SudokuAI(competitive_sudoku.sudokuai.SudokuAI):
         elif global_selection == "robust":
             for child in root.children:
                 if child.n > max_value:
-                    max_value = child.q/child.n
+                    max_value = child.n
                     move_index = child.index
 
         # Propose the current best move
@@ -115,7 +115,7 @@ def one_mc_loop(root) -> None:
         cur_node = cur_node.selection_step()
         
     # Expansion Step
-    if cur_node.n != 0 and cur_node.possible_moves:
+    if cur_node.n == 1:
         cur_node = cur_node.add_children()
     
     # Simulation Step
@@ -197,7 +197,10 @@ class Node():
         self.children_UCT = [float('inf')]*len(self.possible_moves)
         
         # Return a random child
-        return choice(self.children)     
+        if self.children:
+            return choice(self.children)
+        else:
+            return self     
     
     def send_added_q(self, added_q: int) -> None:
         """
@@ -302,111 +305,98 @@ def get_possible_numbers_and_empty(board) -> set:
     return possible_moves, numbers_left, empty_squares
 
 
-def solve_sudoku(board, possible_moves: list, numbers_left: dict):
+def solve_sudoku(board):
     """
-    Iteratively gives a solution to the given sudoku.
-    First, fills in any squares where only one number is possible, then randomly guesses.
-    @param possible_moves: A list containing all still open squares/possible moves.
-    @param empty_squares: A dictionary containing the missing numbers for each group.
-    @return: A filled board.
+    A Sudoku solver using Knuth's Algorithm X to solve an Exact Cover Problem.
+    Credit goes out to Ali Assaf for inspiration from their version.
+    https://www.cs.mcgill.ca/~aassaf9/python/algorithm_x.html 
+    @param board: The board to be solved
+    @return board: A solved board
     """
 
-    move_possibilities = {} # For each move keep track of the possibilities of that move
-    change_made = True
-
-    # Inspect for each square if there is only one option for that square
-    # This keeps repeating until we no longer find anything to change
-    while change_made == True:
-        change_made = False
-
-        for move in possible_moves[:]:
-            possibilities = set(numbers_left["rows"][move[0]] & numbers_left["columns"][move[1]] & numbers_left["regions"][square2region(move)])
-        
-            # If this is the case we fill this move in
-            if len(possibilities) == 1:
-                (number,) = possibilities
-
-                # If this try fails we have made an incorrect guess before this
-                try:
-                    numbers_left["rows"][move[0]].remove(number)
-                    numbers_left["columns"][move[1]].remove(number)
-                    numbers_left["regions"][square2region(move)].remove(number)
-                except:
-                    return -1
-
-                board.put(move[0], move[1], number)
-                possible_moves.remove(move)
-
-                if move in move_possibilities: move_possibilities.pop(move)
-                change_made = True
-
-            # If this is the case, a previous guess was wrong
-            elif len(possibilities) == 0:
-                return -1
-
-            else:
-                move_possibilities[move] = possibilities
+    # Set X for the Exact Cover Problem
+    N = board.m * board.n
+    X = ([("roco", roco) for roco in product(range(N), range(N))] +
+         [("ronu", ronu) for ronu in product(range(N), range(1, N + 1))] +
+         [("conu", conu) for conu in product(range(N), range(1, N + 1))] +
+         [("renu", renu) for renu in product(range(N), range(1, N + 1))])
     
-    change_made = False
-    # Inspect for each square if for one of its groups it is the only square were a number can go
-
-    # For each row, column and region gets a set of all possibilities for all squares combined
-    row_possibilities = defaultdict(list)
-    column_possibilities = defaultdict(list)
-    region_possibilities = defaultdict(list)
-    for move in move_possibilities:
-        row_possibilities[move[0]].extend(move_possibilities[move])
-        column_possibilities[move[1]].extend(move_possibilities[move])
-        region_possibilities[square2region(move)].extend(move_possibilities[move])
-
-    # For each open square check for each number if it is only once in the possibilities for all squares
-    for move in possible_moves[:]:
-        for number in move_possibilities[move]:
-            if (row_possibilities[move[0]].count(number) == 1) or \
-                (column_possibilities[move[1]].count(number) == 1) or \
-                    (region_possibilities[square2region(move)].count(number) == 1):
-
-                # If this try fails we have made an incorrect guess before this
-                try:
-                    numbers_left["rows"][move[0]].remove(number)
-                    numbers_left["columns"][move[1]].remove(number)
-                    numbers_left["regions"][square2region(move)].remove(number)
-                except:
-                    return -1
-                
-                board.put(move[0], move[1], number)
-                possible_moves.remove(move)
-
-                move_possibilities.pop(move)
-                change_made = True
-
-                break
+    # Subsets Y for the Exact Cover Problem
+    Y = {}
+    for row, column, number in product(range(N), range(N), range(1, N + 1)):
+        region = square2region((row, column))
+        Y[(row, column, number)] = [
+            ("roco", (row, column)),
+            ("ronu", (row, number)),
+            ("conu", (column, number)),
+            ("renu", (region, number))]
     
-    # If we made any changes during the last step we return back to the start
-    if change_made:
-        return solve_sudoku(board, possible_moves, numbers_left)
-    
-    # If no more squares can be filled in, pick a random square, keep making a guesses until you hit a correct one
-    if board.empty in board.squares:
-        move, numbers = choice(list(move_possibilities.items()))
-        for number in numbers:
-            new_board = deepcopy(board)
-            new_board.put(move[0], move[1], number)
+    # Changes X such that we can use a dictionary instead linked lists
+    X = reformat_X(X, Y)
+    for row, column in product(range(N), range(N)):
+        number = board.get(row, column)
+        if number:
+            solver_select(X, Y, (row, column, number))
 
-            new_possible_moves = possible_moves[:]
-            new_possible_moves.remove(move)
+    # Grabs the first solution, puts in in a board and returns it
+    for solution in actual_solve(X, Y, []):
+        for (row, column, number) in solution:
+            board.put(row, column, number)
+        return board
 
-            new_numbers_left = deepcopy(numbers_left)
-            new_numbers_left["rows"][move[0]].remove(number)
-            new_numbers_left["columns"][move[1]].remove(number)
-            new_numbers_left["regions"][square2region(move)].remove(number)
-            result = solve_sudoku(new_board, new_possible_moves, new_numbers_left)
-                
-            if result != -1:
-                return result
+def reformat_X(X, Y):
+    """
+    Subfunction of sudoku solve
+    Reformats the X to be usable
+    """
+    X = {i: set() for i in X}
+    for key, value in Y.items():
+        for i in value:
+            X[i].add(key)
+    return X
 
-        # If no possible number worked, a previous guess was wrong 
-        return -1
-    
-    # If the board is full, return
-    return board
+
+def actual_solve(X, Y, solution):
+    """
+    Subfunction of sudoku solve.
+    Does the actual solving algorithm X.
+    """
+    if not X:
+        yield list(solution)
+    else:
+        c = min(X, key=lambda c: len(X[c]))
+        for r in list(X[c]):
+            solution.append(r)
+            cols = solver_select(X, Y, r)
+            for s in actual_solve(X, Y, solution):
+                yield s
+            solver_deselect(X, Y, r, cols)
+            solution.pop()
+
+# Selects group for Algorithm X
+def solver_select(X, Y, key):
+    """
+    Subfunction of sudoku solve.
+    'Selects' a subset of X, which removes it.
+    """
+    cols = []
+    for i in Y[key]:
+        for j in X[i]:
+            for k in Y[j]:
+                if k != i:
+                    X[k].remove(j)
+        cols.append(X.pop(i))
+    return cols
+
+# Deselects group for Algorithm X
+def solver_deselect(X, Y, key, cols):
+    """
+    Subfunction of sudoku solve.
+    'Deselects' a subset of X, which adds it back.
+    """
+    for i in reversed(Y[key]):
+        X[i] = cols.pop()
+        for j in X[i]:
+            for k in Y[j]:
+                if k != i:
+                    X[k].add(i)
